@@ -1,0 +1,48 @@
+version: 2
+
+models:
+  - name: stg_stripe_customers
+    description: "Staged Stripe customers"
+    columns:
+      - name: customer_id
+        description: "Primary key"
+      - name: email
+        description: "Customer email"
+  - name: stg_stripe_subscriptions
+    description: "Staged Stripe subscriptions"
+    columns:
+      - name: subscription_id
+      - name: customer_id
+      - name: price_id
+  - name: stg_stripe_invoices
+    description: "Staged Stripe invoices"
+    columns:
+      - name: invoice_id
+      - name: subscription_id
+      - name: amount_paid
+  - name: stg_stripe_prices
+    description: "Staged Stripe prices"
+    columns:
+      - name: id
+      - name: price_id
+      - name: product_id
+      - name: nickname
+      - name: unit_amount
+  - name: stg_stripe_products
+    description: "Staged Stripe products"
+    columns:
+      - name: id
+      - name: product_id
+      - name: name
+      - name: active
+  - name: stg_internal_users
+    description: "Staged internal users"
+    columns:
+      - name: user_id
+      - name: organization_id
+      - name: stripe_customer_id
+  - name: fct_mrr
+    description: "Monthly recurring revenue fact table"
+    columns:
+      - name: customer_id
+      - name: mrr_amount

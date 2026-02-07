@@ -1,0 +1,54 @@
+[
+  {
+    "name": "products",
+    "count": 6
+  },
+  {
+    "name": "prices",
+    "count": 12
+  },
+  {
+    "name": "customers",
+    "count": 1000
+  },
+  {
+    "name": "organizations",
+    "count": 220
+  },
+  {
+    "name": "users",
+    "count": 1200
+  },
+  {
+    "name": "subscriptions",
+    "count": 2000
+  },
+  {
+    "name": "invoices",
+    "count": 10000
+  },
+  {
+    "name": "payment_intents",
+    "count": 5000
+  },
+  {
+    "name": "features",
+    "count": 12
+  },
+  {
+    "name": "api_usage",
+    "count": 100000
+  },
+  {
+    "name": "chat_sessions",
+    "count": 15000
+  },
+  {
+    "name": "seed",
+    "count": 42
+  },
+  {
+    "name": "scale",
+    "count": 1
+  }
+]

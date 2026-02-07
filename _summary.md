@@ -1,0 +1,1 @@
+A comparative research project testing whether strongly typed TypeScript data models help smaller LLMs answer analytics questions more efficiently than a DBT + warehouse setup. The project scaffolds a typed schema, synthetic dataset generator, and DBT models for Stripe-style billing and internal usage data. Status: **in-progress (foundation phase)**.

@@ -1,0 +1,310 @@
+version: 2
+
+# Enhanced schema.yml that encodes the same information density as TypeScript types
+# Goal: Make DBT YAML provide equivalent semantic information to TS type definitions
+
+models:
+  - name: stg_stripe_customers
+    description: "Staged Stripe customers with source and segment metadata"
+    columns:
+      - name: customer_id
+        description: "Primary key - unique customer identifier"
+        data_type: string
+        constraints:
+          - type: not_null
+          - type: unique
+      - name: name
+        description: "Customer display name"
+        data_type: string
+        constraints:
+          - type: not_null
+      - name: email
+        description: "Customer email address"
+        data_type: string
+        constraints:
+          - type: not_null
+      - name: metadata_source
+        description: "Customer acquisition source"
+        data_type: string
+        constraints:
+          - type: not_null
+        meta:
+          valid_values: ['self-serve', 'sales-led', 'partner']
+      - name: metadata_segment
+        description: "Customer segment classification"
+        data_type: string
+        constraints:
+          - type: not_null
+        meta:
+          valid_values: ['startup', 'mid-market', 'enterprise']
+      - name: created_at
+        description: "Customer creation timestamp"
+        data_type: timestamp
+        constraints:
+          - type: not_null
+
+  - name: stg_stripe_subscriptions
+    description: "Staged Stripe subscriptions with lifecycle status"
+    columns:
+      - name: subscription_id
+        description: "Primary key - unique subscription identifier"
+        data_type: string
+        constraints:
+          - type: not_null
+          - type: unique
+      - name: customer_id
+        description: "Foreign key to customers"
+        data_type: string
+        constraints:
+          - type: not_null
+          - type: relationships
+            to: ref('stg_stripe_customers')
+            field: customer_id
+      - name: price_id
+        description: "Foreign key to prices"
+        data_type: string
+        constraints:
+          - type: not_null
+          - type: relationships
+            to: ref('stg_stripe_prices')
+            field: price_id
+      - name: status
+        description: "Subscription lifecycle status"
+        data_type: string
+        constraints:
+          - type: not_null
+        meta:
+          valid_values: ['active', 'trialing', 'canceled', 'past_due']
+          business_logic: "Only 'active' subscriptions generate MRR"
+      - name: current_period_start
+        description: "Start of current billing period"
+        data_type: timestamp
+        constraints:
+          - type: not_null
+      - name: current_period_end
+        description: "End of current billing period"
+        data_type: timestamp
+        constraints:
+          - type: not_null
+      - name: cancel_at_period_end
+        description: "Whether subscription will cancel at period end (churn indicator)"
+        data_type: boolean
+        constraints:
+          - type: not_null
+        meta:
+          business_logic: "When true, subscription is considered 'churning'"
+      - name: created_at
+        description: "Subscription creation timestamp"
+        data_type: timestamp
+        constraints:
+          - type: not_null
+
+  - name: stg_stripe_invoices
+    description: "Staged Stripe invoices with payment status"
+    columns:
+      - name: invoice_id
+        description: "Primary key - unique invoice identifier"
+        data_type: string
+        constraints:
+          - type: not_null
+          - type: unique
+      - name: customer_id
+        description: "Foreign key to customers"
+        data_type: string
+        constraints:
+          - type: not_null
+          - type: relationships
+            to: ref('stg_stripe_customers')
+            field: customer_id
+      - name: subscription_id
+        description: "Foreign key to subscriptions"
+        data_type: string
+        constraints:
+          - type: not_null
+          - type: relationships
+            to: ref('stg_stripe_subscriptions')
+            field: subscription_id
+      - name: amount_due
+        description: "Total amount due in cents (USD)"
+        data_type: integer
+        constraints:
+          - type: not_null
+        meta:
+          unit: "cents"
+          currency: "usd"
+      - name: amount_paid
+        description: "Total amount paid in cents (USD)"
+        data_type: integer
+        constraints:
+          - type: not_null
+        meta:
+          unit: "cents"
+          currency: "usd"
+          business_logic: "Use this field for revenue calculations, not amount_due"
+      - name: status
+        description: "Invoice payment status"
+        data_type: string
+        constraints:
+          - type: not_null
+        meta:
+          valid_values: ['paid', 'open', 'void', 'uncollectible']
+          business_logic: "Only 'paid' invoices count toward revenue"
+      - name: created_at
+        description: "Invoice creation timestamp"
+        data_type: timestamp
+        constraints:
+          - type: not_null
+
+  - name: stg_stripe_prices
+    description: "Staged Stripe prices with plan tiers"
+    columns:
+      - name: price_id
+        description: "Primary key - unique price identifier"
+        data_type: string
+        constraints:
+          - type: not_null
+          - type: unique
+      - name: product_id
+        description: "Foreign key to products"
+        data_type: string
+        constraints:
+          - type: not_null
+          - type: relationships
+            to: ref('stg_stripe_products')
+            field: product_id
+      - name: nickname
+        description: "Plan tier name"
+        data_type: string
+        constraints:
+          - type: not_null
+        meta:
+          valid_values: ['starter', 'growth', 'team', 'enterprise']
+      - name: unit_amount
+        description: "Price per unit in cents (USD)"
+        data_type: integer
+        constraints:
+          - type: not_null
+        meta:
+          unit: "cents"
+          currency: "usd"
+      - name: currency
+        description: "Price currency code"
+        data_type: string
+        constraints:
+          - type: not_null
+        meta:
+          valid_values: ['usd']
+      - name: billing_interval
+        description: "Billing frequency"
+        data_type: string
+        constraints:
+          - type: not_null
+        meta:
+          valid_values: ['month', 'year']
+      - name: created_at
+        description: "Price creation timestamp"
+        data_type: timestamp
+        constraints:
+          - type: not_null
+
+  - name: stg_stripe_products
+    description: "Staged Stripe products"
+    columns:
+      - name: product_id
+        description: "Primary key - unique product identifier"
+        data_type: string
+        constraints:
+          - type: not_null
+          - type: unique
+      - name: name
+        description: "Product display name"
+        data_type: string
+        constraints:
+          - type: not_null
+      - name: active
+        description: "Whether product is currently available"
+        data_type: boolean
+        constraints:
+          - type: not_null
+      - name: created_at
+        description: "Product creation timestamp"
+        data_type: timestamp
+        constraints:
+          - type: not_null
+
+  - name: stg_internal_users
+    description: "Staged internal users linked to Stripe customers"
+    columns:
+      - name: user_id
+        description: "Primary key - unique internal user identifier"
+        data_type: string
+        constraints:
+          - type: not_null
+          - type: unique
+      - name: organization_id
+        description: "Organization/tenant identifier"
+        data_type: string
+        constraints:
+          - type: not_null
+      - name: stripe_customer_id
+        description: "Foreign key to Stripe customers"
+        data_type: string
+        constraints:
+          - type: relationships
+            to: ref('stg_stripe_customers')
+            field: customer_id
+
+  - name: fct_mrr
+    description: |
+      Monthly recurring revenue fact table.
+
+      Business Logic:
+      - Only includes 'paid' invoices from 'active' subscriptions
+      - MRR calculated as sum of amount_paid per customer per month
+      - Requires join between invoices and subscriptions
+    columns:
+      - name: customer_id
+        description: "Foreign key to customers"
+        data_type: string
+        constraints:
+          - type: not_null
+          - type: relationships
+            to: ref('stg_stripe_customers')
+            field: customer_id
+      - name: invoice_month
+        description: "Month of invoice (truncated to first of month)"
+        data_type: date
+        constraints:
+          - type: not_null
+      - name: mrr_amount
+        description: "Monthly recurring revenue in cents (USD)"
+        data_type: integer
+        constraints:
+          - type: not_null
+        meta:
+          unit: "cents"
+          currency: "usd"
+          calculation: "SUM(amount_paid) for paid invoices on active subscriptions"
+
+# Semantic rules - equivalent to TypeScript's type system
+semantic_rules:
+  revenue_calculations:
+    description: "Standard rules for revenue metrics"
+    rules:
+      - "Only invoices with status='paid' count toward revenue"
+      - "Only subscriptions with status='active' count toward MRR"
+      - "All monetary amounts are in cents (divide by 100 for dollars)"
+      - "Currency is always 'usd'"
+
+  churn_calculations:
+    description: "Standard rules for churn metrics"
+    rules:
+      - "Churning = active subscriptions with cancel_at_period_end=true"
+      - "Churn rate = churning_count / total_active_count"
+
+  customer_metrics:
+    description: "Standard rules for customer metrics"
+    rules:
+      - "ARPU = total_paid_amount / unique_paying_customers"
+      - "LTV = average of (sum of paid amounts per customer)"
+      - "Paying customer = any customer with at least one paid invoice"

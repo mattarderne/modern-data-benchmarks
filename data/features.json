@@ -1,0 +1,74 @@
+[
+  {
+    "id": "feat_0_2653",
+    "key": "export",
+    "enabled": false,
+    "created_at": "2025-10-08T13:02:05.376Z"
+  },
+  {
+    "id": "feat_1_47457",
+    "key": "rate-limit",
+    "enabled": true,
+    "created_at": "2025-10-09T13:02:05.376Z"
+  },
+  {
+    "id": "feat_2_61409",
+    "key": "priority-support",
+    "enabled": true,
+    "created_at": "2025-10-10T13:02:05.376Z"
+  },
+  {
+    "id": "feat_3_57582",
+    "key": "sso",
+    "enabled": false,
+    "created_at": "2025-10-11T13:02:05.376Z"
+  },
+  {
+    "id": "feat_4_88555",
+    "key": "team-workspaces",
+    "enabled": true,
+    "created_at": "2025-10-12T13:02:05.376Z"
+  },
+  {
+    "id": "feat_5_98441",
+    "key": "audit-logs",
+    "enabled": true,
+    "created_at": "2025-10-13T13:02:05.376Z"
+  },
+  {
+    "id": "feat_6_75678",
+    "key": "vision",
+    "enabled": true,
+    "created_at": "2025-10-14T13:02:05.376Z"
+  },
+  {
+    "id": "feat_7_51226",
+    "key": "tool-calling",
+    "enabled": false,
+    "created_at": "2025-10-15T13:02:05.376Z"
+  },
+  {
+    "id": "feat_8_99298",
+    "key": "batch",
+    "enabled": true,
+    "created_at": "2025-10-16T13:02:05.376Z"
+  },
+  {
+    "id": "feat_9_75972",
+    "key": "fine-tuning",
+    "enabled": false,
+    "created_at": "2025-10-17T13:02:05.376Z"
+  },
+  {
+    "id": "feat_10_35244",
+    "key": "assistant-api",
+    "enabled": true,
+    "created_at": "2025-10-18T13:02:05.376Z"
+  },
+  {
+    "id": "feat_11_9051",
+    "key": "custom-metrics",
+    "enabled": true,
+    "created_at": "2025-10-19T13:02:05.376Z"
+  }
+]

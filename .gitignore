@@ -1,0 +1,10 @@
+.DS_Store
+node_modules/
+
+# generated sandboxes
+sandbox/
+sandbox-runs/
+sandbox-constrained/
+sandbox-edit/
+sandbox-smoke/
+.env
