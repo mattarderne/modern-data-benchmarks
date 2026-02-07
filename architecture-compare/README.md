@@ -101,6 +101,13 @@ For a fuller narrative (methodology, critique points, and limitations), see:
 - DBT validation executes SQL directly in DuckDB (not full dbt compilation).
 - Typed validation runs TS via type-stripping (not strict type-checking).
 
+## Related Projects
+
+- DBT Core: https://github.com/dbt-labs/dbt-core
+- Drizzle ORM: https://github.com/drizzle-team/drizzle-orm
+- Drizzle Cube: https://github.com/cliftonc/drizzle-cube
+- DuckDB: https://github.com/duckdb/duckdb
+
 ## How Validation Works (High Level)
 
 - **Typed**: imports and executes the model’s TypeScript function.
