@@ -61,26 +61,19 @@ Pass counts below are **out of 3 tasks** per sandbox (ARPU, churn, LTV). This is
 | arcee-ai/trinity-large-preview:free | 3/3 | 0/3 | 0/3 | 0/3 |
 | qwen/qwen3-coder-next | 3/3 | 0/3 | 1/3 | 1/3 |
 
-## Charts
+## Cost Curve
 
-The following images are generated from the current benchmark snapshot:
+**Pareto Performance / Cost Curve**  
+![Pareto Performance / Cost Curve](artifacts/benchmark_cost_curve.png)
 
-**Pass Rate Matrix (x/3 tasks)**  
-![Pass Rate Matrix](artifacts/benchmark_matrix.png)
-
-**Total Passes per Model (out of 12)**  
-![Total Passes per Model](artifacts/benchmark_model_totals.png)
-
-**Total Passes per Sandbox (out of 21)**  
-![Total Passes per Sandbox](artifacts/benchmark_sandbox_totals.png)
-
-**Pass Breakdown per Model by Sandbox**  
-![Pass Breakdown per Model](artifacts/benchmark_model_stacked.png)
+Cost is plotted as **USD per 1M input + 1M output tokens** using OpenRouter pricing (log scale on the x‑axis).
 
 ## Detailed Write‑Up
 
 For a fuller narrative (methodology, critique points, and limitations), see:
-- `artifacts/benchmark_report_detailed.docx`
+- `artifacts/reports/benchmark_report_detailed.docx`
+
+Other run‑specific charts and reports are archived under `artifacts/reports/`.
 
 **Method Summary**
 - Tasks: ARPU, churn rate, LTV on a shared synthetic dataset in `data/`.
