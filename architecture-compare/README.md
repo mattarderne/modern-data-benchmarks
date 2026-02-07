@@ -47,6 +47,20 @@ architecture-compare/
    node --experimental-strip-types scripts/smoke-test.ts
    ```
 
+## Results Snapshot (Single Run per Model)
+
+Pass counts below are **out of 3 tasks** per sandbox (ARPU, churn, LTV). This is a single-run snapshot; see `artifacts/` for charts and the detailed report.
+
+| Model | typed | dbt | drizzle | cube |
+|---|---:|---:|---:|---:|
+| google/gemini-3-flash-preview | 0/3 | 1/3 | 0/3 | 0/3 |
+| moonshotai/kimi-k2.5 | 2/3 | 0/3 | 3/3 | 3/3 |
+| z-ai/glm-4.7 | 3/3 | 2/3 | 0/3 | 1/3 |
+| minimax/minimax-m2.1 | 0/3 | 0/3 | 0/3 | 0/3 |
+| x-ai/grok-code-fast-1 | 3/3 | 1/3 | 3/3 | 1/3 |
+| arcee-ai/trinity-large-preview:free | 3/3 | 0/3 | 0/3 | 0/3 |
+| qwen/qwen3-coder-next | 3/3 | 0/3 | 1/3 | 1/3 |
+
 ## How Validation Works (High Level)
 
 - **Typed**: imports and executes the model’s TypeScript function.
