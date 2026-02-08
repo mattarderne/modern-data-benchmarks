@@ -7,6 +7,7 @@ export interface Task {
   name: string;
   description: string;
   dataFile: string;
+  dataFiles?: string[];
   expectedValue: () => number;
   tolerance: number;
 
@@ -56,4 +57,9 @@ export interface BenchmarkResult {
   turns: number;
   error?: string;
   durationMs: number;
+  toolUsage?: {
+    readFiles: string[];
+    listFiles: string[];
+    writeFiles: string[];
+  };
 }

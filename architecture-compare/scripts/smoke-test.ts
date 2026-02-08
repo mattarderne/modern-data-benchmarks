@@ -57,7 +57,7 @@ export async function calculateARPU(): Promise<number> {
 const CUBE_ARPU_MEASURE = `
     arpu: {
       type: 'number',
-      sql: \`CAST(SUM(\${invoices.amount_paid}) AS REAL) / COUNT(DISTINCT \${invoices.customer_id})\`,
+      sql: \`CAST(SUM(CASE WHEN \${invoices.status} = 'paid' THEN \${invoices.amount_paid} ELSE 0 END) AS REAL)\n        / NULLIF(COUNT(DISTINCT CASE WHEN \${invoices.status} = 'paid' THEN \${invoices.customer_id} END), 0)\`,
     },
 `;
 

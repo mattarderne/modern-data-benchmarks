@@ -1,0 +1,531 @@
+{
+  "models": [
+    "claude-3-5-haiku-20241022",
+    "claude-sonnet-4-20250514",
+    "claude-opus-4-5"
+  ],
+  "sandboxes": [
+    "app-typed",
+    "app-drizzle",
+    "warehouse-dbt"
+  ],
+  "tasks": [
+    "active_user_arpu",
+    "org_churn_rate",
+    "avg_org_ltv"
+  ],
+  "per_model": {
+    "claude-3-5-haiku-20241022": {
+      "sandbox_task_pass_rate": {
+        "app-typed": {
+          "active_user_arpu": {
+            "pass_rate": 0.0,
+            "passes": 0,
+            "runs": 5,
+            "ci95": [
+              0.0,
+              0.0
+            ]
+          },
+          "org_churn_rate": {
+            "pass_rate": 0.4,
+            "passes": 2,
+            "runs": 5,
+            "ci95": [
+              0.0,
+              0.8294144850840502
+            ]
+          },
+          "avg_org_ltv": {
+            "pass_rate": 0.0,
+            "passes": 0,
+            "runs": 5,
+            "ci95": [
+              0.0,
+              0.0
+            ]
+          }
+        },
+        "app-drizzle": {
+          "active_user_arpu": {
+            "pass_rate": 0.0,
+            "passes": 0,
+            "runs": 5,
+            "ci95": [
+              0.0,
+              0.0
+            ]
+          },
+          "org_churn_rate": {
+            "pass_rate": 0.2,
+            "passes": 1,
+            "runs": 5,
+            "ci95": [
+              0.0,
+              0.5506154588719672
+            ]
+          },
+          "avg_org_ltv": {
+            "pass_rate": 0.0,
+            "passes": 0,
+            "runs": 5,
+            "ci95": [
+              0.0,
+              0.0
+            ]
+          }
+        },
+        "warehouse-dbt": {
+          "active_user_arpu": {
+            "pass_rate": 0.0,
+            "passes": 0,
+            "runs": 5,
+            "ci95": [
+              0.0,
+              0.0
+            ]
+          },
+          "org_churn_rate": {
+            "pass_rate": 0.0,
+            "passes": 0,
+            "runs": 5,
+            "ci95": [
+              0.0,
+              0.0
+            ]
+          },
+          "avg_org_ltv": {
+            "pass_rate": 0.0,
+            "passes": 0,
+            "runs": 5,
+            "ci95": [
+              0.0,
+              0.0
+            ]
+          }
+        }
+      },
+      "sandbox_passes_mean": {
+        "app-typed": 0.4,
+        "app-drizzle": 0.2,
+        "warehouse-dbt": 0.0
+      },
+      "sandbox_passes_ci": {
+        "app-typed": [
+          0.0,
+          0.3053639938219455
+        ],
+        "app-drizzle": [
+          0.0,
+          0.19290265965569464
+        ],
+        "warehouse-dbt": [
+          0.0,
+          0.0
+        ]
+      },
+      "overall_passes_mean": 0.6000000000000001,
+      "overall_passes_ci": [
+        0.0,
+        0.1395490512003017
+      ],
+      "runs": [
+        1,
+        0,
+        1,
+        1,
+        0
+      ],
+      "tool_usage": {
+        "app-typed": {
+          "avg_reads_per_task": 1.8666666666666667,
+          "avg_unique_reads_per_task": 1.2,
+          "key_file_read_rate": {
+            "src/analytics/queries.ts": 1.0,
+            "src/types/internal.ts": 0.13333333333333333,
+            "src/types/stripe.ts": 0.06666666666666667,
+            "src/analytics/derived.ts": 0.0
+          }
+        },
+        "app-drizzle": {
+          "avg_reads_per_task": 1.7333333333333334,
+          "avg_unique_reads_per_task": 1.4,
+          "key_file_read_rate": {
+            "src/schema.ts": 1.0,
+            "src/queries.ts": 0.4,
+            "src/db.ts": 0.0
+          }
+        },
+        "warehouse-dbt": {
+          "avg_reads_per_task": 1.1333333333333333,
+          "avg_unique_reads_per_task": 1.0666666666666667,
+          "key_file_read_rate": {
+            "models/staging/stg_app_api_usage.sql": 0.13333333333333333,
+            "models/staging/stg_app_users.sql": 0.0,
+            "models/staging/stg_app_organizations.sql": 0.26666666666666666,
+            "models/staging/stg_stripe_invoices.sql": 0.06666666666666667,
+            "models/staging/stg_stripe_subscriptions.sql": 0.0
+          }
+        }
+      }
+    },
+    "claude-sonnet-4-20250514": {
+      "sandbox_task_pass_rate": {
+        "app-typed": {
+          "active_user_arpu": {
+            "pass_rate": 0.0,
+            "passes": 0,
+            "runs": 5,
+            "ci95": [
+              0.0,
+              0.0
+            ]
+          },
+          "org_churn_rate": {
+            "pass_rate": 0.8,
+            "passes": 4,
+            "runs": 5,
+            "ci95": [
+              0.44938454112803305,
+              1.0
+            ]
+          },
+          "avg_org_ltv": {
+            "pass_rate": 0.0,
+            "passes": 0,
+            "runs": 5,
+            "ci95": [
+              0.0,
+              0.0
+            ]
+          }
+        },
+        "app-drizzle": {
+          "active_user_arpu": {
+            "pass_rate": 0.0,
+            "passes": 0,
+            "runs": 5,
+            "ci95": [
+              0.0,
+              0.0
+            ]
+          },
+          "org_churn_rate": {
+            "pass_rate": 0.8,
+            "passes": 4,
+            "runs": 5,
+            "ci95": [
+              0.44938454112803305,
+              1.0
+            ]
+          },
+          "avg_org_ltv": {
+            "pass_rate": 0.0,
+            "passes": 0,
+            "runs": 5,
+            "ci95": [
+              0.0,
+              0.0
+            ]
+          }
+        },
+        "warehouse-dbt": {
+          "active_user_arpu": {
+            "pass_rate": 0.0,
+            "passes": 0,
+            "runs": 5,
+            "ci95": [
+              0.0,
+              0.0
+            ]
+          },
+          "org_churn_rate": {
+            "pass_rate": 0.0,
+            "passes": 0,
+            "runs": 5,
+            "ci95": [
+              0.0,
+              0.0
+            ]
+          },
+          "avg_org_ltv": {
+            "pass_rate": 0.4,
+            "passes": 2,
+            "runs": 5,
+            "ci95": [
+              0.0,
+              0.8294144850840502
+            ]
+          }
+        }
+      },
+      "sandbox_passes_mean": {
+        "app-typed": 0.8,
+        "app-drizzle": 0.8,
+        "warehouse-dbt": 0.4
+      },
+      "sandbox_passes_ci": {
+        "app-typed": [
+          0.0428741701850342,
+          0.4904591631482991
+        ],
+        "app-drizzle": [
+          0.0428741701850342,
+          0.4904591631482991
+        ],
+        "warehouse-dbt": [
+          0.0,
+          0.3053639938219455
+        ]
+      },
+      "overall_passes_mean": 2.0,
+      "overall_passes_ci": [
+        0.1007515813328305,
+        0.3436928631116139
+      ],
+      "runs": [
+        3,
+        3,
+        1,
+        1,
+        2
+      ],
+      "tool_usage": {
+        "app-typed": {
+          "avg_reads_per_task": 2.1333333333333333,
+          "avg_unique_reads_per_task": 1.8,
+          "key_file_read_rate": {
+            "src/analytics/queries.ts": 1.0,
+            "src/types/internal.ts": 0.4666666666666667,
+            "src/types/stripe.ts": 0.26666666666666666,
+            "src/analytics/derived.ts": 0.06666666666666667
+          }
+        },
+        "app-drizzle": {
+          "avg_reads_per_task": 2.066666666666667,
+          "avg_unique_reads_per_task": 2.0,
+          "key_file_read_rate": {
+            "src/schema.ts": 1.0,
+            "src/queries.ts": 1.0,
+            "src/db.ts": 0.0
+          }
+        },
+        "warehouse-dbt": {
+          "avg_reads_per_task": 4.266666666666667,
+          "avg_unique_reads_per_task": 3.7333333333333334,
+          "key_file_read_rate": {
+            "models/staging/stg_app_api_usage.sql": 0.13333333333333333,
+            "models/staging/stg_app_users.sql": 0.5333333333333333,
+            "models/staging/stg_app_organizations.sql": 0.8,
+            "models/staging/stg_stripe_invoices.sql": 0.2,
+            "models/staging/stg_stripe_subscriptions.sql": 0.06666666666666667
+          }
+        }
+      }
+    },
+    "claude-opus-4-5": {
+      "sandbox_task_pass_rate": {
+        "app-typed": {
+          "active_user_arpu": {
+            "pass_rate": 1.0,
+            "passes": 5,
+            "runs": 5,
+            "ci95": [
+              1.0,
+              1.0
+            ]
+          },
+          "org_churn_rate": {
+            "pass_rate": 1.0,
+            "passes": 5,
+            "runs": 5,
+            "ci95": [
+              1.0,
+              1.0
+            ]
+          },
+          "avg_org_ltv": {
+            "pass_rate": 0.0,
+            "passes": 0,
+            "runs": 5,
+            "ci95": [
+              0.0,
+              0.0
+            ]
+          }
+        },
+        "app-drizzle": {
+          "active_user_arpu": {
+            "pass_rate": 1.0,
+            "passes": 5,
+            "runs": 5,
+            "ci95": [
+              1.0,
+              1.0
+            ]
+          },
+          "org_churn_rate": {
+            "pass_rate": 1.0,
+            "passes": 5,
+            "runs": 5,
+            "ci95": [
+              1.0,
+              1.0
+            ]
+          },
+          "avg_org_ltv": {
+            "pass_rate": 1.0,
+            "passes": 5,
+            "runs": 5,
+            "ci95": [
+              1.0,
+              1.0
+            ]
+          }
+        },
+        "warehouse-dbt": {
+          "active_user_arpu": {
+            "pass_rate": 0.0,
+            "passes": 0,
+            "runs": 5,
+            "ci95": [
+              0.0,
+              0.0
+            ]
+          },
+          "org_churn_rate": {
+            "pass_rate": 0.0,
+            "passes": 0,
+            "runs": 5,
+            "ci95": [
+              0.0,
+              0.0
+            ]
+          },
+          "avg_org_ltv": {
+            "pass_rate": 1.0,
+            "passes": 5,
+            "runs": 5,
+            "ci95": [
+              1.0,
+              1.0
+            ]
+          }
+        }
+      },
+      "sandbox_passes_mean": {
+        "app-typed": 2.0,
+        "app-drizzle": 3.0,
+        "warehouse-dbt": 1.0
+      },
+      "sandbox_passes_ci": {
+        "app-typed": [
+          0.4281030638421943,
+          0.9052302694911389
+        ],
+        "app-drizzle": [
+          1.0,
+          1.0
+        ],
+        "warehouse-dbt": [
+          0.09476973050886098,
+          0.5718969361578057
+        ]
+      },
+      "overall_passes_mean": 6.0,
+      "overall_passes_ci": [
+        0.5289319063571105,
+        0.8044014269762227
+      ],
+      "runs": [
+        6,
+        6,
+        6,
+        6,
+        6
+      ],
+      "tool_usage": {
+        "app-typed": {
+          "avg_reads_per_task": 3.3333333333333335,
+          "avg_unique_reads_per_task": 3.3333333333333335,
+          "key_file_read_rate": {
+            "src/analytics/queries.ts": 1.0,
+            "src/types/internal.ts": 1.0,
+            "src/types/stripe.ts": 1.0,
+            "src/analytics/derived.ts": 0.3333333333333333
+          }
+        },
+        "app-drizzle": {
+          "avg_reads_per_task": 2.3333333333333335,
+          "avg_unique_reads_per_task": 2.0,
+          "key_file_read_rate": {
+            "src/schema.ts": 1.0,
+            "src/queries.ts": 1.0,
+            "src/db.ts": 0.0
+          }
+        },
+        "warehouse-dbt": {
+          "avg_reads_per_task": 4.4,
+          "avg_unique_reads_per_task": 4.4,
+          "key_file_read_rate": {
+            "models/staging/stg_app_api_usage.sql": 0.6666666666666666,
+            "models/staging/stg_app_users.sql": 1.0,
+            "models/staging/stg_app_organizations.sql": 0.3333333333333333,
+            "models/staging/stg_stripe_invoices.sql": 0.6666666666666666,
+            "models/staging/stg_stripe_subscriptions.sql": 0.3333333333333333
+          }
+        }
+      }
+    }
+  },
+  "plateau": {
+    "claude-3-5-haiku-20241022": {
+      "run_totals": [
+        1,
+        0,
+        1,
+        1,
+        0
+      ],
+      "running_std": [
+        0.0,
+        0.5,
+        0.4714045207910317,
+        0.4330127018922193,
+        0.48989794855663565
+      ]
+    },
+    "claude-opus-4-5": {
+      "run_totals": [
+        6,
+        6,
+        6,
+        6,
+        6
+      ],
+      "running_std": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "claude-sonnet-4-20250514": {
+      "run_totals": [
+        3,
+        3,
+        1,
+        1,
+        2
+      ],
+      "running_std": [
+        0.0,
+        0.0,
+        0.9428090415820634,
+        1.0,
+        0.8944271909999159
+      ]
+    }
+  }
+}

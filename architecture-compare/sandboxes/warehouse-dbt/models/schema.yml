@@ -1,0 +1,47 @@
+version: 2
+
+models:
+  - name: stg_app_users
+    description: "Staged application users"
+    columns:
+      - name: user_id
+      - name: organization_id
+      - name: stripe_customer_id
+  - name: stg_app_organizations
+    description: "Staged organizations"
+    columns:
+      - name: organization_id
+      - name: name
+  - name: stg_app_api_usage
+    description: "Staged API usage events"
+    columns:
+      - name: usage_id
+      - name: user_id
+      - name: tokens
+  - name: stg_stripe_customers
+    description: "Staged Stripe customers"
+    columns:
+      - name: customer_id
+      - name: email
+  - name: stg_stripe_subscriptions
+    description: "Staged Stripe subscriptions"
+    columns:
+      - name: subscription_id
+      - name: customer_id
+      - name: price_id
+  - name: stg_stripe_invoices
+    description: "Staged Stripe invoices"
+    columns:
+      - name: invoice_id
+      - name: subscription_id
+      - name: amount_paid
+  - name: dim_orgs
+    description: "Organization dimension"
+    columns:
+      - name: organization_id
+      - name: name
+  - name: fct_org_revenue
+    description: "Revenue by organization"
+    columns:
+      - name: organization_id
+      - name: total_paid
