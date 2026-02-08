@@ -605,7 +605,8 @@ async function runBenchmark(
   taskIds: string[],
   maxTurns: number,
   data: DataBundle,
-  tasks: Task[]
+  tasks: Task[],
+  lintEnabled: boolean
 ): Promise<BenchmarkResult[]> {
   const results: BenchmarkResult[] = [];
 
@@ -670,7 +671,7 @@ async function runBenchmark(
         continue;
       }
 
-      if (config.lint) {
+      if (lintEnabled && config.lint) {
         console.log(`  Linting...`);
         lintResult = await config.lint(sandboxDir, task);
         if (!lintResult.valid) {
@@ -797,6 +798,7 @@ async function main() {
   const taskArg = args.find(a => a.startsWith('--task='))?.split('=')[1];
   const outputPath = args.find(a => a.startsWith('--output='))?.split('=')[1];
   const driftArg = args.find(a => a.startsWith('--drift='))?.split('=')[1] as DriftMode | undefined;
+  const lintEnabled = !args.includes('--no-lint');
 
   const drift: DriftMode = driftArg || 'none';
 
@@ -818,7 +820,7 @@ async function main() {
   console.log(`Drift:     ${drift}`);
   console.log('='.repeat(70));
 
-  const results = await runBenchmark(sandboxIds, model, taskIds, maxTurns, driftedData, tasks);
+  const results = await runBenchmark(sandboxIds, model, taskIds, maxTurns, driftedData, tasks, lintEnabled);
 
   printSummary(results);
 
