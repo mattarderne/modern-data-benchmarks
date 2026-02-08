@@ -163,6 +163,30 @@ Token usage and cost summary:
 
 ![Architecture Benchmark Rubric Score (1-pass)](architecture_benchmark_rubric_model_2026-02-08-1pass.png)
 
+## Linted Sonnet Runs (n=2, max-turns=10)
+
+Linting enabled:
+- TypeScript sandboxes run `node --experimental-strip-types --check` on the target file.
+- Warehouse DBT runs DuckDB `EXPLAIN` against the generated SQL.
+
+Mean passes per sandbox (out of 3 tasks), averaged over 2 runs:
+
+| Model | app-typed | app-drizzle | warehouse-dbt | Overall (out of 9) |
+|---|---:|---:|---:|---:|
+| claude-sonnet-4-20250514 | 1.50 | 0.50 | 0.50 | 2.50 |
+
+Per‑run totals (out of 9): 2, 3
+
+Token usage and cost (mean per run):
+- Input tokens: 180,922
+- Output tokens: 36,949
+- Cost per run: $1.0970
+- Cost per pass: $0.4388
+
+![Architecture Benchmark Cost Curve (Linted Sonnet, n=2)](architecture_benchmark_cost_curve_2026-02-08-lint-2pass.png)
+
+![Architecture Benchmark Rubric Score (Linted Sonnet, n=2)](architecture_benchmark_rubric_model_2026-02-08-lint-2pass.png)
+
 ## Charts
 
 ![Architecture Benchmark Matrix](architecture_benchmark_matrix.png)
@@ -246,7 +270,6 @@ Scoring is outcome‑based: code must execute and return the correct numeric val
 
 ## Next Steps
 
-- Add token usage logging for API calls and generate a Pareto cost curve for architecture runs.
-- Evaluate lint/test options per sandbox (dbt compile/test with duckdb adapter, sqlfluff, TS typecheck/ESLint for typed, smoke/unit checks for drizzle, and a minimal validation check for cube measures).
-- Define and test a scoring rubric beyond binary pass/fail (code correctness vs numeric correctness, schema adherence, tool usage, and partial credit).
+- Upgrade syntax-only linting to deeper checks (dbt compile, sqlfluff, tsc/ESLint) while preserving parity.
+- Calibrate the rubric weights and validate scoring on a labeled subset.
 - Add realistic drift scenarios (e.g., late-arriving Stripe invoices, missing stripe_customer_id mappings) to test robustness under sync delays.

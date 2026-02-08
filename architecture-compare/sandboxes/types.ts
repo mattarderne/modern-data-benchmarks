@@ -43,6 +43,9 @@ export interface SandboxConfig {
   // Validate the result after agent completes
   validate: (sandboxDir: string, task: Task) => Promise<ValidationResult>;
 
+  // Optional lint step before validation
+  lint?: (sandboxDir: string, task: Task) => Promise<ValidationResult>;
+
   // Optional: setup hook (e.g., install dependencies, create db)
   setup?: (sandboxDir: string) => Promise<void>;
 }
@@ -61,6 +64,10 @@ export interface BenchmarkResult {
     readFiles: string[];
     listFiles: string[];
     writeFiles: string[];
+  };
+  lint?: {
+    valid: boolean;
+    error?: string;
   };
   tokenUsage?: {
     inputTokens: number;

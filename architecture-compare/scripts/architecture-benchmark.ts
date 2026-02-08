@@ -633,6 +633,7 @@ async function runBenchmark(
       const startTime = Date.now();
       const toolUsage: ToolUsage = { readFiles: [], listFiles: [], writeFiles: [] };
       const tokenUsage: TokenUsage = { inputTokens: 0, outputTokens: 0, totalTokens: 0 };
+      let lintResult: ValidationResult | undefined;
 
       if (config.setup) {
         await config.setup(sandboxDir);
@@ -662,10 +663,35 @@ async function runBenchmark(
           error: agentResult.error,
           durationMs: Date.now() - startTime,
           toolUsage,
+          lint: lintResult ? { valid: lintResult.valid, error: lintResult.error } : undefined,
           tokenUsage,
           rubric,
         });
         continue;
+      }
+
+      if (config.lint) {
+        console.log(`  Linting...`);
+        lintResult = await config.lint(sandboxDir, task);
+        if (!lintResult.valid) {
+          console.log(`\n  ✗ LINT FAIL: ${lintResult.error}`);
+          const rubric = computeRubric(config, false, false, lintResult.error, toolUsage);
+          results.push({
+            sandbox: sandboxId,
+            model,
+            task,
+            pass: false,
+            expected,
+            turns: agentResult.turns,
+            error: lintResult.error,
+            durationMs: Date.now() - startTime,
+            toolUsage,
+            lint: { valid: lintResult.valid, error: lintResult.error },
+            tokenUsage,
+            rubric,
+          });
+          continue;
+        }
       }
 
       console.log(`  Validating...`);
@@ -684,6 +710,7 @@ async function runBenchmark(
           error: validation.error,
           durationMs: Date.now() - startTime,
           toolUsage,
+          lint: lintResult ? { valid: lintResult.valid, error: lintResult.error } : undefined,
           tokenUsage,
           rubric,
         });
@@ -712,6 +739,7 @@ async function runBenchmark(
         turns: agentResult.turns,
         durationMs: Date.now() - startTime,
         toolUsage,
+        lint: lintResult ? { valid: lintResult.valid, error: lintResult.error } : undefined,
         tokenUsage,
         rubric,
       });

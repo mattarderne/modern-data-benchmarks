@@ -128,4 +128,23 @@ console.log(JSON.stringify({ result: typeof result === 'number' ? result : null 
       return { valid: false, error: `TypeScript error: ${msg.slice(0, 300)}` };
     }
   },
+
+  lint: async (sandboxDir: string): Promise<ValidationResult> => {
+    const queriesPath = path.join(sandboxDir, 'src/analytics/queries.ts');
+    if (!fs.existsSync(queriesPath)) {
+      return { valid: false, error: 'queries.ts not found for linting' };
+    }
+    try {
+      execSync('node --experimental-strip-types --check src/analytics/queries.ts 2>&1', {
+        cwd: sandboxDir,
+        encoding: 'utf8',
+        timeout: 15000,
+        env: { ...process.env, NODE_NO_WARNINGS: '1' },
+      });
+      return { valid: true };
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      return { valid: false, error: `TypeScript syntax check failed: ${message}` };
+    }
+  },
 };

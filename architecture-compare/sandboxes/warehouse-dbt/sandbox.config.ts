@@ -3,6 +3,97 @@ import { execSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 
+function resolveSqlPath(sandboxDir: string, task: Task): string | null {
+  const stagingDir = path.join(sandboxDir, 'models/staging');
+  const martsDir = path.join(sandboxDir, 'models/marts');
+
+  const baseName = task.sqlFile.replace(/^(stg_|fct_|dim_)/, '').replace(/\.sql$/, '');
+  const variations = [
+    task.sqlFile,
+    `${baseName}.sql`,
+    `fct_${baseName}.sql`,
+    `stg_${baseName}.sql`,
+    `dim_${baseName}.sql`,
+    `metric_${baseName}.sql`,
+    `${baseName}_metric.sql`,
+  ];
+
+  const candidateDirs = [martsDir, stagingDir];
+  let actualSqlPath: string | null = null;
+
+  for (const dir of candidateDirs) {
+    if (!fs.existsSync(dir)) continue;
+    const files = fs.readdirSync(dir).filter(f => f.endsWith('.sql'));
+    for (const variation of variations) {
+      if (files.includes(variation)) {
+        actualSqlPath = path.join(dir, variation);
+        break;
+      }
+    }
+    if (actualSqlPath) break;
+  }
+
+  if (!actualSqlPath) {
+    for (const dir of candidateDirs) {
+      if (!fs.existsSync(dir)) continue;
+      const files = fs.readdirSync(dir).filter(f => f.endsWith('.sql'));
+      if (files.length === 0) continue;
+
+      const normalizedBase = baseName.toLowerCase();
+      const baseNoUnderscore = normalizedBase.replace(/_/g, '');
+      const taskId = task.id.toLowerCase();
+
+      const scoreFile = (file: string): number => {
+        const name = file.toLowerCase();
+        let score = 0;
+        if (name === task.sqlFile.toLowerCase()) score += 100;
+        if (name === `${normalizedBase}.sql`) score += 90;
+        if (name.includes(normalizedBase)) score += 50;
+        if (name.includes(baseNoUnderscore)) score += 40;
+        if (name.includes(taskId)) score += 30;
+        if (taskId === 'org_churn_rate' && name.includes('churn')) score += 20;
+        if (taskId === 'avg_org_ltv' && name.includes('ltv')) score += 20;
+        if (taskId === 'active_user_arpu' && name.includes('arpu')) score += 20;
+        return score;
+      };
+
+      const best = files
+        .map(f => ({ f, score: scoreFile(f) }))
+        .sort((a, b) => b.score - a.score)[0];
+
+      if (best && best.score > 0) {
+        actualSqlPath = path.join(dir, best.f);
+        break;
+      }
+    }
+  }
+
+  return actualSqlPath;
+}
+
+function buildViewStatements(sandboxDir: string, actualSqlPath: string): string[] {
+  const stagingDir = path.join(sandboxDir, 'models/staging');
+  const martsDir = path.join(sandboxDir, 'models/marts');
+  const viewStatements: string[] = [];
+
+  const addViewsFromDir = (dir: string) => {
+    if (!fs.existsSync(dir)) return;
+    for (const file of fs.readdirSync(dir)) {
+      if (!file.endsWith('.sql')) continue;
+      const fullPath = path.join(dir, file);
+      if (fullPath === actualSqlPath) continue;
+      const viewName = path.basename(file, '.sql');
+      const viewSql = fs.readFileSync(fullPath, 'utf8').trim().replace(/;\s*$/, '');
+      if (!viewSql.toLowerCase().includes('select')) continue;
+      viewStatements.push(`CREATE OR REPLACE VIEW ${viewName} AS ${viewSql}`);
+    }
+  };
+
+  addViewsFromDir(stagingDir);
+  addViewsFromDir(martsDir);
+  return viewStatements;
+}
+
 export const config: SandboxConfig = {
   id: 'warehouse-dbt',
   name: 'Warehouse + DBT',
@@ -67,70 +158,7 @@ Start by reading an existing staging or mart model for reference.
 `,
 
   validate: async (sandboxDir: string, task: Task): Promise<ValidationResult> => {
-    const stagingDir = path.join(sandboxDir, 'models/staging');
-    const martsDir = path.join(sandboxDir, 'models/marts');
-
-    const baseName = task.sqlFile.replace(/^(stg_|fct_|dim_)/, '').replace(/\.sql$/, '');
-    const variations = [
-      task.sqlFile,
-      `${baseName}.sql`,
-      `fct_${baseName}.sql`,
-      `stg_${baseName}.sql`,
-      `dim_${baseName}.sql`,
-      `metric_${baseName}.sql`,
-      `${baseName}_metric.sql`,
-    ];
-
-    const candidateDirs = [martsDir, stagingDir];
-    let actualSqlPath: string | null = null;
-
-    for (const dir of candidateDirs) {
-      if (!fs.existsSync(dir)) continue;
-      const files = fs.readdirSync(dir).filter(f => f.endsWith('.sql'));
-      for (const variation of variations) {
-        if (files.includes(variation)) {
-          actualSqlPath = path.join(dir, variation);
-          break;
-        }
-      }
-      if (actualSqlPath) break;
-    }
-
-    if (!actualSqlPath) {
-      for (const dir of candidateDirs) {
-        if (!fs.existsSync(dir)) continue;
-        const files = fs.readdirSync(dir).filter(f => f.endsWith('.sql'));
-        if (files.length === 0) continue;
-
-        const normalizedBase = baseName.toLowerCase();
-        const baseNoUnderscore = normalizedBase.replace(/_/g, '');
-        const taskId = task.id.toLowerCase();
-
-        const scoreFile = (file: string): number => {
-          const name = file.toLowerCase();
-          let score = 0;
-          if (name === task.sqlFile.toLowerCase()) score += 100;
-          if (name === `${normalizedBase}.sql`) score += 90;
-          if (name.includes(normalizedBase)) score += 50;
-          if (name.includes(baseNoUnderscore)) score += 40;
-          if (name.includes(taskId)) score += 30;
-          if (taskId === 'org_churn_rate' && name.includes('churn')) score += 20;
-          if (taskId === 'avg_org_ltv' && name.includes('ltv')) score += 20;
-          if (taskId === 'active_user_arpu' && name.includes('arpu')) score += 20;
-          return score;
-        };
-
-        const best = files
-          .map(f => ({ f, score: scoreFile(f) }))
-          .sort((a, b) => b.score - a.score)[0];
-
-        if (best && best.score > 0) {
-          actualSqlPath = path.join(dir, best.f);
-          break;
-        }
-      }
-    }
-
+    const actualSqlPath = resolveSqlPath(sandboxDir, task);
     if (!actualSqlPath || !fs.existsSync(actualSqlPath)) {
       return { valid: false, error: `No SQL file matching ${task.sqlFile} found in models/marts or models/staging` };
     }
@@ -140,22 +168,7 @@ Start by reading an existing staging or mart model for reference.
       return { valid: false, error: 'SQL does not contain SELECT' };
     }
 
-    const viewStatements: string[] = [];
-    const addViewsFromDir = (dir: string) => {
-      if (!fs.existsSync(dir)) return;
-      for (const file of fs.readdirSync(dir)) {
-        if (!file.endsWith('.sql')) continue;
-        const fullPath = path.join(dir, file);
-        if (fullPath === actualSqlPath) continue;
-        const viewName = path.basename(file, '.sql');
-        const viewSql = fs.readFileSync(fullPath, 'utf8').trim().replace(/;\s*$/, '');
-        if (!viewSql.toLowerCase().includes('select')) continue;
-        viewStatements.push(`CREATE OR REPLACE VIEW ${viewName} AS ${viewSql}`);
-      }
-    };
-
-    addViewsFromDir(stagingDir);
-    addViewsFromDir(martsDir);
+    const viewStatements = buildViewStatements(sandboxDir, actualSqlPath);
 
     const duckdbScript = `
 const Database = require('duckdb').Database;
@@ -227,6 +240,81 @@ db.all(sql, (err, rows) => {
     } catch (error: any) {
       const msg = error.stdout?.toString() || error.message;
       return { valid: false, error: `DuckDB error: ${msg.slice(0, 300)}` };
+    }
+  },
+
+  lint: async (sandboxDir: string, task: Task): Promise<ValidationResult> => {
+    const actualSqlPath = resolveSqlPath(sandboxDir, task);
+    if (!actualSqlPath || !fs.existsSync(actualSqlPath)) {
+      return { valid: false, error: `No SQL file matching ${task.sqlFile} found for linting` };
+    }
+
+    const sql = fs.readFileSync(actualSqlPath, 'utf8');
+    if (!sql.toLowerCase().includes('select')) {
+      return { valid: false, error: 'SQL does not contain SELECT' };
+    }
+
+    const viewStatements = buildViewStatements(sandboxDir, actualSqlPath);
+
+    const lintScript = `
+const Database = require('duckdb').Database;
+const fs = require('fs');
+
+const db = new Database(':memory:');
+
+db.exec(\`
+  CREATE TABLE raw_app_organizations AS SELECT * FROM read_json_auto('./data/organizations.json');
+  CREATE TABLE raw_app_users AS SELECT * FROM read_json_auto('./data/users.json');
+  CREATE TABLE raw_app_api_usage AS SELECT * FROM read_json_auto('./data/api_usage.json');
+  CREATE TABLE raw_app_chat_sessions AS SELECT * FROM read_json_auto('./data/chat_sessions.json');
+  CREATE TABLE raw_app_features AS SELECT * FROM read_json_auto('./data/features.json');
+
+  CREATE TABLE raw_stripe_customers AS SELECT * FROM read_json_auto('./data/customers.json');
+  CREATE TABLE raw_stripe_invoices AS SELECT * FROM read_json_auto('./data/invoices.json');
+  CREATE TABLE raw_stripe_subscriptions AS SELECT * FROM read_json_auto('./data/subscriptions.json');
+  CREATE TABLE raw_stripe_prices AS SELECT * FROM read_json_auto('./data/prices.json');
+  CREATE TABLE raw_stripe_products AS SELECT * FROM read_json_auto('./data/products.json');
+  CREATE TABLE raw_stripe_payment_intents AS SELECT * FROM read_json_auto('./data/payment_intents.json');
+\`);
+
+const views = ${JSON.stringify(viewStatements)};
+for (const stmt of views) {
+  try {
+    db.exec(stmt);
+  } catch (err) {
+    console.log(JSON.stringify({ error: err.message }));
+    process.exit(1);
+  }
+}
+
+const sql = fs.readFileSync('${actualSqlPath}', 'utf8').trim().replace(/;\\s*$/, '');
+try {
+  db.exec('EXPLAIN ' + sql);
+  console.log(JSON.stringify({ ok: true }));
+} catch (err) {
+  console.log(JSON.stringify({ error: err.message }));
+  process.exit(1);
+}
+`;
+
+    const scriptPath = path.join(sandboxDir, 'lint-sql.cjs');
+    fs.writeFileSync(scriptPath, lintScript);
+
+    try {
+      const output = execSync('node lint-sql.cjs 2>&1', {
+        cwd: sandboxDir,
+        encoding: 'utf8',
+        timeout: 20000,
+      });
+
+      const parsed = JSON.parse(output.trim());
+      if (parsed.error) {
+        return { valid: false, error: `SQL lint error: ${parsed.error}` };
+      }
+      return { valid: true };
+    } catch (error: any) {
+      const msg = error.stdout?.toString() || error.message;
+      return { valid: false, error: `DuckDB lint error: ${msg.slice(0, 300)}` };
     }
   },
 };

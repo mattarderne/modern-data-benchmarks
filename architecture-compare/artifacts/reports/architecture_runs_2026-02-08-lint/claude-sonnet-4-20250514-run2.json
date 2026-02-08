@@ -1,0 +1,492 @@
+{
+  "metadata": {
+    "model": "claude-sonnet-4-20250514",
+    "sandboxes": [
+      "app-typed",
+      "app-drizzle",
+      "warehouse-dbt"
+    ],
+    "tasks": [
+      "active_user_arpu",
+      "org_churn_rate",
+      "avg_org_ltv"
+    ],
+    "maxTurns": 10,
+    "drift": "none",
+    "startedAt": "2026-02-08T13:52:36.543Z",
+    "endedAt": "2026-02-08T14:00:40.304Z",
+    "tokenUsage": {
+      "inputTokens": 174885,
+      "outputTokens": 35086,
+      "totalTokens": 209971
+    }
+  },
+  "results": [
+    {
+      "sandbox": "app-typed",
+      "model": "claude-sonnet-4-20250514",
+      "task": {
+        "id": "active_user_arpu",
+        "name": "Active User ARPU",
+        "description": "Calculate ARPU for active users.\nFormula: total paid invoice amount for active users / count of active users\nActive users: users with API usage in the last 30 days (relative to latest api_usage.created_at).\nReturn: number (rounded to nearest integer for TypeScript/Drizzle, raw for SQL)",
+        "dataFile": "invoices",
+        "dataFiles": [
+          "users",
+          "api_usage",
+          "invoices"
+        ],
+        "functionName": "calculateActiveUserARPU",
+        "sqlFile": "fct_active_user_arpu.sql",
+        "measureName": "active_user_arpu",
+        "signature": "calculateActiveUserARPU(users: User[], apiUsage: ApiUsage[], invoices: StripeInvoice[]): number",
+        "tolerance": 1
+      },
+      "pass": false,
+      "expected": 85365,
+      "turns": 4,
+      "error": "No function matching calculateActiveUserARPU found. Tried: calculateActiveUserARPU, calculateactiveuserarpu, calculateActiveuserarpu...",
+      "durationMs": 42493,
+      "toolUsage": {
+        "readFiles": [
+          "src/analytics/queries.ts",
+          "src/types/internal.ts",
+          "src/types/stripe.ts"
+        ],
+        "listFiles": [],
+        "writeFiles": []
+      },
+      "lint": {
+        "valid": true
+      },
+      "tokenUsage": {
+        "inputTokens": 10554,
+        "outputTokens": 3478,
+        "totalTokens": 14032
+      },
+      "rubric": {
+        "runtime": 0,
+        "output": 0,
+        "schema": 0,
+        "toolUsage": 0.75,
+        "total": 0.1875
+      }
+    },
+    {
+      "sandbox": "app-typed",
+      "model": "claude-sonnet-4-20250514",
+      "task": {
+        "id": "org_churn_rate",
+        "name": "Organization Churn Rate",
+        "description": "Calculate organization churn rate.\nChurned orgs: organizations with no active subscriptions AND no API usage in last 30 days (relative to latest api_usage.created_at).\nDenominator: organizations with at least one user.\nReturn: decimal with 4 decimal places (e.g., 0.2168)",
+        "dataFile": "subscriptions",
+        "dataFiles": [
+          "organizations",
+          "users",
+          "subscriptions",
+          "api_usage"
+        ],
+        "functionName": "calculateOrgChurnRate",
+        "sqlFile": "fct_org_churn_rate.sql",
+        "measureName": "org_churn_rate",
+        "signature": "calculateOrgChurnRate(organizations: Organization[], users: User[], subscriptions: StripeSubscription[], apiUsage: ApiUsage[]): number",
+        "tolerance": 0.001
+      },
+      "pass": true,
+      "expected": 0,
+      "actual": 0,
+      "turns": 6,
+      "durationMs": 65637,
+      "toolUsage": {
+        "readFiles": [
+          "src/analytics/queries.ts",
+          "src/types/internal.ts",
+          "src/types/stripe.ts",
+          "src/analytics/queries.ts"
+        ],
+        "listFiles": [],
+        "writeFiles": [
+          "src/analytics/queries.ts"
+        ]
+      },
+      "lint": {
+        "valid": true
+      },
+      "tokenUsage": {
+        "inputTokens": 23440,
+        "outputTokens": 5162,
+        "totalTokens": 28602
+      },
+      "rubric": {
+        "runtime": 1,
+        "output": 1,
+        "schema": 1,
+        "toolUsage": 0.75,
+        "total": 0.9375
+      }
+    },
+    {
+      "sandbox": "app-typed",
+      "model": "claude-sonnet-4-20250514",
+      "task": {
+        "id": "avg_org_ltv",
+        "name": "Average Org LTV",
+        "description": "Calculate average organization lifetime value (LTV).\nFormula: average of (sum of paid invoice amount per organization), across orgs with at least one user.\nJoin users -> stripe_customer_id -> invoices.\nReturn: number (rounded to nearest integer for TypeScript/Drizzle, raw for SQL)",
+        "dataFile": "invoices",
+        "dataFiles": [
+          "organizations",
+          "users",
+          "invoices"
+        ],
+        "functionName": "calculateAvgOrgLTV",
+        "sqlFile": "fct_avg_org_ltv.sql",
+        "measureName": "avg_org_ltv",
+        "signature": "calculateAvgOrgLTV(organizations: Organization[], users: User[], invoices: StripeInvoice[]): number",
+        "tolerance": 1
+      },
+      "pass": false,
+      "expected": 811610,
+      "actual": 0,
+      "turns": 3,
+      "durationMs": 31635,
+      "toolUsage": {
+        "readFiles": [
+          "src/analytics/queries.ts"
+        ],
+        "listFiles": [],
+        "writeFiles": [
+          "src/analytics/queries.ts"
+        ]
+      },
+      "lint": {
+        "valid": true
+      },
+      "tokenUsage": {
+        "inputTokens": 5223,
+        "outputTokens": 2341,
+        "totalTokens": 7564
+      },
+      "rubric": {
+        "runtime": 1,
+        "output": 0,
+        "schema": 1,
+        "toolUsage": 0.25,
+        "total": 0.5625
+      }
+    },
+    {
+      "sandbox": "app-drizzle",
+      "model": "claude-sonnet-4-20250514",
+      "task": {
+        "id": "active_user_arpu",
+        "name": "Active User ARPU",
+        "description": "Calculate ARPU for active users.\nFormula: total paid invoice amount for active users / count of active users\nActive users: users with API usage in the last 30 days (relative to latest api_usage.created_at).\nReturn: number (rounded to nearest integer for TypeScript/Drizzle, raw for SQL)",
+        "dataFile": "invoices",
+        "dataFiles": [
+          "users",
+          "api_usage",
+          "invoices"
+        ],
+        "functionName": "calculateActiveUserARPU",
+        "sqlFile": "fct_active_user_arpu.sql",
+        "measureName": "active_user_arpu",
+        "signature": "calculateActiveUserARPU(users: User[], apiUsage: ApiUsage[], invoices: StripeInvoice[]): number",
+        "tolerance": 1
+      },
+      "pass": false,
+      "expected": 85365,
+      "actual": 13661998,
+      "turns": 5,
+      "durationMs": 48886,
+      "toolUsage": {
+        "readFiles": [
+          "src/schema.ts",
+          "src/queries.ts"
+        ],
+        "listFiles": [],
+        "writeFiles": [
+          "src/queries.ts"
+        ]
+      },
+      "lint": {
+        "valid": true
+      },
+      "tokenUsage": {
+        "inputTokens": 17864,
+        "outputTokens": 3308,
+        "totalTokens": 21172
+      },
+      "rubric": {
+        "runtime": 1,
+        "output": 0,
+        "schema": 1,
+        "toolUsage": 0.6666666666666666,
+        "total": 0.6666666666666666
+      }
+    },
+    {
+      "sandbox": "app-drizzle",
+      "model": "claude-sonnet-4-20250514",
+      "task": {
+        "id": "org_churn_rate",
+        "name": "Organization Churn Rate",
+        "description": "Calculate organization churn rate.\nChurned orgs: organizations with no active subscriptions AND no API usage in last 30 days (relative to latest api_usage.created_at).\nDenominator: organizations with at least one user.\nReturn: decimal with 4 decimal places (e.g., 0.2168)",
+        "dataFile": "subscriptions",
+        "dataFiles": [
+          "organizations",
+          "users",
+          "subscriptions",
+          "api_usage"
+        ],
+        "functionName": "calculateOrgChurnRate",
+        "sqlFile": "fct_org_churn_rate.sql",
+        "measureName": "org_churn_rate",
+        "signature": "calculateOrgChurnRate(organizations: Organization[], users: User[], subscriptions: StripeSubscription[], apiUsage: ApiUsage[]): number",
+        "tolerance": 0.001
+      },
+      "pass": true,
+      "expected": 0,
+      "actual": 0,
+      "turns": 5,
+      "durationMs": 55237,
+      "toolUsage": {
+        "readFiles": [
+          "src/schema.ts",
+          "src/queries.ts"
+        ],
+        "listFiles": [],
+        "writeFiles": [
+          "src/queries.ts"
+        ]
+      },
+      "lint": {
+        "valid": true
+      },
+      "tokenUsage": {
+        "inputTokens": 18643,
+        "outputTokens": 3813,
+        "totalTokens": 22456
+      },
+      "rubric": {
+        "runtime": 1,
+        "output": 1,
+        "schema": 1,
+        "toolUsage": 0.6666666666666666,
+        "total": 0.9166666666666666
+      }
+    },
+    {
+      "sandbox": "app-drizzle",
+      "model": "claude-sonnet-4-20250514",
+      "task": {
+        "id": "avg_org_ltv",
+        "name": "Average Org LTV",
+        "description": "Calculate average organization lifetime value (LTV).\nFormula: average of (sum of paid invoice amount per organization), across orgs with at least one user.\nJoin users -> stripe_customer_id -> invoices.\nReturn: number (rounded to nearest integer for TypeScript/Drizzle, raw for SQL)",
+        "dataFile": "invoices",
+        "dataFiles": [
+          "organizations",
+          "users",
+          "invoices"
+        ],
+        "functionName": "calculateAvgOrgLTV",
+        "sqlFile": "fct_avg_org_ltv.sql",
+        "measureName": "avg_org_ltv",
+        "signature": "calculateAvgOrgLTV(organizations: Organization[], users: User[], invoices: StripeInvoice[]): number",
+        "tolerance": 1
+      },
+      "pass": false,
+      "expected": 811610,
+      "turns": 5,
+      "error": "Function returned non-number: {\"result\":null}\n",
+      "durationMs": 34466,
+      "toolUsage": {
+        "readFiles": [
+          "src/schema.ts",
+          "src/queries.ts"
+        ],
+        "listFiles": [],
+        "writeFiles": [
+          "src/queries.ts"
+        ]
+      },
+      "lint": {
+        "valid": true
+      },
+      "tokenUsage": {
+        "inputTokens": 13497,
+        "outputTokens": 2099,
+        "totalTokens": 15596
+      },
+      "rubric": {
+        "runtime": 0,
+        "output": 0,
+        "schema": 0,
+        "toolUsage": 0.6666666666666666,
+        "total": 0.16666666666666666
+      }
+    },
+    {
+      "sandbox": "warehouse-dbt",
+      "model": "claude-sonnet-4-20250514",
+      "task": {
+        "id": "active_user_arpu",
+        "name": "Active User ARPU",
+        "description": "Calculate ARPU for active users.\nFormula: total paid invoice amount for active users / count of active users\nActive users: users with API usage in the last 30 days (relative to latest api_usage.created_at).\nReturn: number (rounded to nearest integer for TypeScript/Drizzle, raw for SQL)",
+        "dataFile": "invoices",
+        "dataFiles": [
+          "users",
+          "api_usage",
+          "invoices"
+        ],
+        "functionName": "calculateActiveUserARPU",
+        "sqlFile": "fct_active_user_arpu.sql",
+        "measureName": "active_user_arpu",
+        "signature": "calculateActiveUserARPU(users: User[], apiUsage: ApiUsage[], invoices: StripeInvoice[]): number",
+        "tolerance": 1
+      },
+      "pass": false,
+      "expected": 85365,
+      "turns": 7,
+      "error": "DuckDB error: {\"error\":\"Binder Error: Referenced column \\\"created_at\\\" not found in FROM clause!\\nCandidate bindings: \\\"usage_created_at\\\", \\\"latency_ms\\\"\\n\\nLINE 2:   select max(created_at) as max_created_at\\n                     ^\"}\n",
+      "durationMs": 64643,
+      "toolUsage": {
+        "readFiles": [
+          "models/marts/schema.yml",
+          "models/marts/dim_orgs.sql",
+          "models/marts/fct_active_user_arpu.sql"
+        ],
+        "listFiles": [
+          "models",
+          "models/marts"
+        ],
+        "writeFiles": [
+          "models/marts/fct_active_user_arpu.sql"
+        ]
+      },
+      "lint": {
+        "valid": true
+      },
+      "tokenUsage": {
+        "inputTokens": 19258,
+        "outputTokens": 4217,
+        "totalTokens": 23475
+      },
+      "rubric": {
+        "runtime": 0,
+        "output": 0,
+        "schema": 0,
+        "toolUsage": 0.14285714285714285,
+        "total": 0.03571428571428571
+      }
+    },
+    {
+      "sandbox": "warehouse-dbt",
+      "model": "claude-sonnet-4-20250514",
+      "task": {
+        "id": "org_churn_rate",
+        "name": "Organization Churn Rate",
+        "description": "Calculate organization churn rate.\nChurned orgs: organizations with no active subscriptions AND no API usage in last 30 days (relative to latest api_usage.created_at).\nDenominator: organizations with at least one user.\nReturn: decimal with 4 decimal places (e.g., 0.2168)",
+        "dataFile": "subscriptions",
+        "dataFiles": [
+          "organizations",
+          "users",
+          "subscriptions",
+          "api_usage"
+        ],
+        "functionName": "calculateOrgChurnRate",
+        "sqlFile": "fct_org_churn_rate.sql",
+        "measureName": "org_churn_rate",
+        "signature": "calculateOrgChurnRate(organizations: Organization[], users: User[], subscriptions: StripeSubscription[], apiUsage: ApiUsage[]): number",
+        "tolerance": 0.001
+      },
+      "pass": false,
+      "expected": 0,
+      "turns": 10,
+      "error": "Max turns exceeded",
+      "durationMs": 80649,
+      "toolUsage": {
+        "readFiles": [
+          "models/marts/dim_orgs.sql",
+          "models/staging/stg_app_organizations.sql",
+          "models/staging/stg_app_users.sql",
+          "models/staging/stg_stripe_customers.sql",
+          "models/marts/dim_orgs.sql",
+          "models/staging/stg_app_api_usage.sql"
+        ],
+        "listFiles": [
+          "models",
+          "models/marts"
+        ],
+        "writeFiles": [
+          "models/marts/fct_org_churn_rate.sql"
+        ]
+      },
+      "tokenUsage": {
+        "inputTokens": 41131,
+        "outputTokens": 7102,
+        "totalTokens": 48233
+      },
+      "rubric": {
+        "runtime": 0,
+        "output": 0,
+        "schema": 0,
+        "toolUsage": 0.5714285714285714,
+        "total": 0.14285714285714285
+      }
+    },
+    {
+      "sandbox": "warehouse-dbt",
+      "model": "claude-sonnet-4-20250514",
+      "task": {
+        "id": "avg_org_ltv",
+        "name": "Average Org LTV",
+        "description": "Calculate average organization lifetime value (LTV).\nFormula: average of (sum of paid invoice amount per organization), across orgs with at least one user.\nJoin users -> stripe_customer_id -> invoices.\nReturn: number (rounded to nearest integer for TypeScript/Drizzle, raw for SQL)",
+        "dataFile": "invoices",
+        "dataFiles": [
+          "organizations",
+          "users",
+          "invoices"
+        ],
+        "functionName": "calculateAvgOrgLTV",
+        "sqlFile": "fct_avg_org_ltv.sql",
+        "measureName": "avg_org_ltv",
+        "signature": "calculateAvgOrgLTV(organizations: Organization[], users: User[], invoices: StripeInvoice[]): number",
+        "tolerance": 1
+      },
+      "pass": true,
+      "expected": 811610,
+      "actual": 811610,
+      "turns": 9,
+      "durationMs": 58613,
+      "toolUsage": {
+        "readFiles": [
+          "models/staging/stg_app_users.sql",
+          "models/staging/stg_app_organizations.sql",
+          "models/staging/stg_stripe_customers.sql",
+          "models/staging/stg_stripe_invoices.sql"
+        ],
+        "listFiles": [
+          "models",
+          "models/staging"
+        ],
+        "writeFiles": [
+          "models/marts/fct_avg_org_ltv.sql"
+        ]
+      },
+      "lint": {
+        "valid": true
+      },
+      "tokenUsage": {
+        "inputTokens": 25275,
+        "outputTokens": 3566,
+        "totalTokens": 28841
+      },
+      "rubric": {
+        "runtime": 1,
+        "output": 1,
+        "schema": 1,
+        "toolUsage": 0.42857142857142855,
+        "total": 0.8571428571428571
+      }
+    }
+  ]
+}
