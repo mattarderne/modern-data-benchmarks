@@ -22,10 +22,10 @@ This experiment intentionally tests schema discovery and unification because the
 flowchart LR
   AppData[(App Tables JSON)]
   StripeData[(Stripe Tables JSON)]
-  Loader[In‑memory arrays]
+  Loader[In-memory arrays]
   AppData --> Loader
   StripeData --> Loader
-  Loader --> TS[TypeScript Functions\n(join on users.stripe_customer_id → invoices.customer_id)]
+  Loader --> TS[TypeScript Functions<br/>join users.stripe_customer_id to invoices.customer_id]
   TS --> Metric[Metric Output]
 ```
 
