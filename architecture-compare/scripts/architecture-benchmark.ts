@@ -293,11 +293,36 @@ function isOpenRouterModel(model: string): boolean {
   return model.includes('/');
 }
 
+type TokenUsage = {
+  inputTokens: number;
+  outputTokens: number;
+  totalTokens: number;
+};
+
+type LlmResponse = {
+  content: string;
+  usage?: TokenUsage;
+};
+
+function normalizeTokenUsage(inputTokens?: number, outputTokens?: number, totalTokens?: number): TokenUsage {
+  const input = Number.isFinite(inputTokens) ? inputTokens! : 0;
+  const output = Number.isFinite(outputTokens) ? outputTokens! : 0;
+  const total = Number.isFinite(totalTokens) ? totalTokens! : input + output;
+  return { inputTokens: input, outputTokens: output, totalTokens: total };
+}
+
+function addTokenUsage(target: TokenUsage | undefined, delta?: TokenUsage): void {
+  if (!target || !delta) return;
+  target.inputTokens += delta.inputTokens;
+  target.outputTokens += delta.outputTokens;
+  target.totalTokens += delta.totalTokens;
+}
+
 async function callLLM(
   messages: Array<{ role: 'user' | 'assistant'; content: string }>,
   model: string,
   systemPrompt: string
-): Promise<string> {
+): Promise<LlmResponse> {
   if (isOpenRouterModel(model)) {
     return callOpenRouter(messages, model, systemPrompt);
   }
@@ -308,7 +333,7 @@ async function callAnthropic(
   messages: Array<{ role: 'user' | 'assistant'; content: string }>,
   model: string,
   systemPrompt: string
-): Promise<string> {
+): Promise<LlmResponse> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) throw new Error('ANTHROPIC_API_KEY not set');
 
@@ -332,15 +357,23 @@ async function callAnthropic(
     throw new Error(`Anthropic API error: ${response.status}`);
   }
 
-  const data = await response.json() as { content: Array<{ text: string }> };
-  return data.content.map(c => c.text).join('');
+  const data = await response.json() as {
+    content: Array<{ text: string }>;
+    usage?: { input_tokens?: number; output_tokens?: number };
+  };
+  return {
+    content: data.content.map(c => c.text).join(''),
+    usage: data.usage
+      ? normalizeTokenUsage(data.usage.input_tokens, data.usage.output_tokens)
+      : undefined,
+  };
 }
 
 async function callOpenRouter(
   messages: Array<{ role: 'user' | 'assistant'; content: string }>,
   model: string,
   systemPrompt: string
-): Promise<string> {
+): Promise<LlmResponse> {
   const apiKey = process.env.OPENROUTER_API_KEY;
   if (!apiKey) throw new Error('OPENROUTER_API_KEY not set');
 
@@ -362,8 +395,16 @@ async function callOpenRouter(
     throw new Error(`OpenRouter API error: ${response.status}`);
   }
 
-  const data = await response.json() as { choices: Array<{ message: { content: string } }> };
-  return data.choices[0]?.message?.content || '';
+  const data = await response.json() as {
+    choices: Array<{ message: { content: string } }>;
+    usage?: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number };
+  };
+  return {
+    content: data.choices[0]?.message?.content || '',
+    usage: data.usage
+      ? normalizeTokenUsage(data.usage.prompt_tokens, data.usage.completion_tokens, data.usage.total_tokens)
+      : undefined,
+  };
 }
 
 // ============================================
@@ -380,6 +421,56 @@ type ToolUsage = {
   listFiles: string[];
   writeFiles: string[];
 };
+
+type RubricScore = {
+  runtime: number;
+  output: number;
+  schema: number;
+  toolUsage: number;
+  total: number;
+};
+
+function normalizePath(value: string): string {
+  return value.trim().replace(/^\.\/+/, '');
+}
+
+function isSchemaError(error?: string): boolean {
+  if (!error) return false;
+  return /column|table|relation|no such|unknown|does not exist|invalid identifier/i.test(error);
+}
+
+function computeToolUsageScore(toolUsage: ToolUsage | undefined, config: SandboxConfig): number {
+  if (!toolUsage || toolUsage.readFiles.length === 0) return 0;
+  const keyFiles = config.contextFiles.map(normalizePath);
+  if (keyFiles.length === 0) return 0;
+  const reads = new Set(toolUsage.readFiles.map(normalizePath));
+  let hits = 0;
+  for (const file of keyFiles) {
+    if (reads.has(file)) hits += 1;
+  }
+  return hits / keyFiles.length;
+}
+
+function computeRubric(
+  config: SandboxConfig,
+  pass: boolean,
+  validationOk: boolean,
+  error: string | undefined,
+  toolUsage: ToolUsage | undefined
+): RubricScore {
+  const runtime = validationOk ? 1 : 0;
+  const output = pass ? 1 : 0;
+  const schema = validationOk && !isSchemaError(error) ? 1 : 0;
+  const toolUsageScore = computeToolUsageScore(toolUsage, config);
+  const total = (runtime + output + schema + toolUsageScore) / 4;
+  return {
+    runtime,
+    output,
+    schema,
+    toolUsage: toolUsageScore,
+    total,
+  };
+}
 
 function parseToolCall(response: string): ToolCall | null {
   const toolMatch = response.match(/<tool>(\w+)<\/tool>/);
@@ -465,7 +556,8 @@ async function runAgent(
   sandboxDir: string,
   model: string,
   maxTurns: number,
-  toolUsage?: ToolUsage
+  toolUsage?: ToolUsage,
+  tokenUsage?: TokenUsage
 ): Promise<{ success: boolean; turns: number; error?: string }> {
   const taskPrompt = config.taskPrompt(task);
 
@@ -475,9 +567,10 @@ async function runAgent(
 
   for (let turn = 1; turn <= maxTurns; turn++) {
     const response = await callLLM(messages, model, config.systemPrompt);
-    messages.push({ role: 'assistant', content: response });
+    messages.push({ role: 'assistant', content: response.content });
+    addTokenUsage(tokenUsage, response.usage);
 
-    const tool = parseToolCall(response);
+    const tool = parseToolCall(response.content);
     if (!tool) {
       console.log(`      Turn ${turn}: [no tool]`);
       messages.push({ role: 'user', content: 'Use a tool: read_file, write_file, list_files, or done' });
@@ -539,16 +632,26 @@ async function runBenchmark(
 
       const startTime = Date.now();
       const toolUsage: ToolUsage = { readFiles: [], listFiles: [], writeFiles: [] };
+      const tokenUsage: TokenUsage = { inputTokens: 0, outputTokens: 0, totalTokens: 0 };
 
       if (config.setup) {
         await config.setup(sandboxDir);
       }
 
       console.log(`  Running agent...`);
-      const agentResult = await runAgent(config, task, sandboxDir, model, maxTurns, toolUsage);
+      const agentResult = await runAgent(
+        config,
+        task,
+        sandboxDir,
+        model,
+        maxTurns,
+        toolUsage,
+        tokenUsage
+      );
 
       if (!agentResult.success) {
         console.log(`\n  ✗ FAIL: ${agentResult.error}`);
+        const rubric = computeRubric(config, false, false, agentResult.error, toolUsage);
         results.push({
           sandbox: sandboxId,
           model,
@@ -559,6 +662,8 @@ async function runBenchmark(
           error: agentResult.error,
           durationMs: Date.now() - startTime,
           toolUsage,
+          tokenUsage,
+          rubric,
         });
         continue;
       }
@@ -568,6 +673,7 @@ async function runBenchmark(
 
       if (!validation.valid) {
         console.log(`\n  ✗ FAIL: ${validation.error}`);
+        const rubric = computeRubric(config, false, false, validation.error, toolUsage);
         results.push({
           sandbox: sandboxId,
           model,
@@ -578,12 +684,15 @@ async function runBenchmark(
           error: validation.error,
           durationMs: Date.now() - startTime,
           toolUsage,
+          tokenUsage,
+          rubric,
         });
         continue;
       }
 
       const diff = Math.abs((validation.actual ?? 0) - expected);
       const pass = diff <= task.tolerance;
+      const rubric = computeRubric(config, pass, true, undefined, toolUsage);
 
       if (pass) {
         console.log(`\n  ✓ PASS (${agentResult.turns} turns)`);
@@ -603,6 +712,8 @@ async function runBenchmark(
         turns: agentResult.turns,
         durationMs: Date.now() - startTime,
         toolUsage,
+        tokenUsage,
+        rubric,
       });
     }
   }
@@ -636,6 +747,17 @@ function printSummary(results: BenchmarkResult[]) {
   }
 
   console.log('='.repeat(70));
+}
+
+function sumTokenUsage(results: BenchmarkResult[]): TokenUsage {
+  const total: TokenUsage = { inputTokens: 0, outputTokens: 0, totalTokens: 0 };
+  for (const r of results) {
+    if (!r.tokenUsage) continue;
+    total.inputTokens += r.tokenUsage.inputTokens;
+    total.outputTokens += r.tokenUsage.outputTokens;
+    total.totalTokens += r.tokenUsage.totalTokens;
+  }
+  return total;
 }
 
 async function main() {
@@ -673,6 +795,7 @@ async function main() {
   printSummary(results);
 
   if (outputPath) {
+    const tokenTotals = sumTokenUsage(results);
     const payload = {
       metadata: {
         model,
@@ -682,6 +805,7 @@ async function main() {
         drift,
         startedAt,
         endedAt: new Date().toISOString(),
+        tokenUsage: tokenTotals,
       },
       results,
     };

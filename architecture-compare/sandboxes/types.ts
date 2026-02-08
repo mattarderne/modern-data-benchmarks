@@ -62,4 +62,16 @@ export interface BenchmarkResult {
     listFiles: string[];
     writeFiles: string[];
   };
+  tokenUsage?: {
+    inputTokens: number;
+    outputTokens: number;
+    totalTokens: number;
+  };
+  rubric?: {
+    runtime: number;
+    output: number;
+    schema: number;
+    toolUsage: number;
+    total: number;
+  };
 }

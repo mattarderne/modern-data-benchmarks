@@ -2,6 +2,7 @@
 import json
 import math
 import os
+import sys
 from pathlib import Path
 from collections import defaultdict, Counter
 
@@ -10,16 +11,13 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 
-INPUT_DIR = Path('artifacts/reports/architecture_runs_2026-02-07')
 OUTPUT_DIR = Path('artifacts/reports')
 
-MODELS = [
-    'claude-3-5-haiku-20241022',
-    'claude-sonnet-4-20250514',
-    'claude-opus-4-5',
-]
-SANDboxes = ['app-typed', 'app-drizzle', 'warehouse-dbt']
-TASKS = ['active_user_arpu', 'org_churn_rate', 'avg_org_ltv']
+PRICE_USD_PER_M = {
+    'claude-3-5-haiku-20241022': {'input': 0.07, 'output': 0.30},
+    'claude-sonnet-4-20250514': {'input': 3.00, 'output': 15.00},
+    'claude-opus-4-5': {'input': 5.00, 'output': 25.00},
+}
 
 KEY_FILES = {
     'app-typed': [
@@ -43,15 +41,65 @@ KEY_FILES = {
 }
 
 
-def load_runs():
+def parse_args():
+    input_dir = None
+    suffix = None
+    for arg in sys.argv[1:]:
+        if arg.startswith('--input='):
+            input_dir = Path(arg.split('=', 1)[1])
+        elif arg.startswith('--suffix='):
+            suffix = arg.split('=', 1)[1]
+    return input_dir, suffix
+
+
+def latest_runs_dir():
+    candidates = sorted(Path('artifacts/reports').glob('architecture_runs_*'))
+    return candidates[-1] if candidates else None
+
+
+def apply_suffix(name, suffix):
+    if not suffix:
+        return name
+    stem, ext = os.path.splitext(name)
+    return f'{stem}_{suffix}{ext}'
+
+
+def load_runs(input_dir):
     runs = []
-    if not INPUT_DIR.exists():
+    if not input_dir.exists():
         return runs
-    for path in sorted(INPUT_DIR.glob('*.json')):
+    for path in sorted(input_dir.glob('*.json')):
         with path.open() as f:
             payload = json.load(f)
         runs.append(payload)
     return runs
+
+
+def extract_run_usage(payload):
+    usage = payload.get('metadata', {}).get('tokenUsage')
+    if usage and isinstance(usage, dict):
+        return {
+            'inputTokens': usage.get('inputTokens', 0) or 0,
+            'outputTokens': usage.get('outputTokens', 0) or 0,
+            'totalTokens': usage.get('totalTokens', 0) or 0,
+        }
+
+    input_tokens = 0
+    output_tokens = 0
+    total_tokens = 0
+    for r in payload.get('results', []):
+        usage = r.get('tokenUsage') or {}
+        input_tokens += usage.get('inputTokens', 0) or 0
+        output_tokens += usage.get('outputTokens', 0) or 0
+        total_tokens += usage.get('totalTokens', 0) or 0
+
+    if input_tokens or output_tokens or total_tokens:
+        return {
+            'inputTokens': input_tokens,
+            'outputTokens': output_tokens,
+            'totalTokens': total_tokens,
+        }
+    return None
 
 
 def summarize_runs(runs):
@@ -59,8 +107,11 @@ def summarize_runs(runs):
     pass_counts = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
     run_counts = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
     run_totals = defaultdict(list)  # model -> list of total passes per run
+    run_token_usage = defaultdict(list)
 
     tool_reads = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
+    rubric_sums = defaultdict(lambda: defaultdict(lambda: defaultdict(float)))
+    rubric_counts = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
 
     for payload in runs:
         model = payload['metadata']['model']
@@ -69,6 +120,8 @@ def summarize_runs(runs):
         # total passes per run (out of 9)
         total_pass = sum(1 for r in results if r.get('pass'))
         run_totals[model].append(total_pass)
+
+        run_token_usage[model].append(extract_run_usage(payload))
 
         for r in results:
             sandbox = r['sandbox']
@@ -82,7 +135,12 @@ def summarize_runs(runs):
             reads = usage.get('readFiles') or []
             tool_reads[model][sandbox][task].append(reads)
 
-    return pass_counts, run_counts, run_totals, tool_reads
+            rubric = r.get('rubric') or {}
+            if rubric:
+                rubric_sums[model][sandbox][task] += rubric.get('total', 0.0) or 0.0
+                rubric_counts[model][sandbox][task] += 1
+
+    return pass_counts, run_counts, run_totals, tool_reads, run_token_usage, rubric_sums, rubric_counts
 
 
 def binom_ci(p, n, z=1.96):
@@ -94,15 +152,25 @@ def binom_ci(p, n, z=1.96):
     return (lo, hi)
 
 
-def build_summary(pass_counts, run_counts, run_totals, tool_reads):
+def build_summary(pass_counts, run_counts, run_totals, tool_reads, run_token_usage,
+                  rubric_sums, rubric_counts, models, sandboxes, tasks):
     summary = {
-        'models': MODELS,
-        'sandboxes': SANDboxes,
-        'tasks': TASKS,
+        'models': models,
+        'sandboxes': sandboxes,
+        'tasks': tasks,
+        'pricing_usd_per_m_tokens': PRICE_USD_PER_M,
         'per_model': {},
     }
 
-    for model in MODELS:
+    def cost_from_usage(model, usage):
+        if not usage or model not in PRICE_USD_PER_M:
+            return None
+        rate = PRICE_USD_PER_M[model]
+        input_cost = (usage.get('inputTokens', 0) / 1_000_000) * rate['input']
+        output_cost = (usage.get('outputTokens', 0) / 1_000_000) * rate['output']
+        return input_cost + output_cost
+
+    for model in models:
         model_entry = {
             'sandbox_task_pass_rate': {},
             'sandbox_passes_mean': {},
@@ -111,17 +179,21 @@ def build_summary(pass_counts, run_counts, run_totals, tool_reads):
             'overall_passes_ci': (0.0, 0.0),
             'runs': run_totals.get(model, []),
             'tool_usage': {},
+            'rubric': {},
+            'cost': {},
         }
 
         overall_total = 0
         overall_n = 0
 
-        for sandbox in SANDboxes:
-            # per task pass rate
+        for sandbox in sandboxes:
+            # per task pass rate + rubric
             task_rates = {}
             task_counts = 0
             task_passes = 0
-            for task in TASKS:
+            task_rubric_total = 0.0
+            task_rubric_n = 0
+            for task in tasks:
                 n = run_counts[model][sandbox][task]
                 c = pass_counts[model][sandbox][task]
                 p = c / n if n else 0.0
@@ -134,15 +206,20 @@ def build_summary(pass_counts, run_counts, run_totals, tool_reads):
                 task_counts += n
                 task_passes += c
 
+                rubric_n = rubric_counts[model][sandbox][task]
+                rubric_total = rubric_sums[model][sandbox][task]
+                task_rubric_total += rubric_total
+                task_rubric_n += rubric_n
+
             model_entry['sandbox_task_pass_rate'][sandbox] = task_rates
 
             # mean passes per sandbox (out of 3)
-            n_runs = run_counts[model][sandbox][TASKS[0]]
+            n_runs = run_counts[model][sandbox][tasks[0]]
             passes_mean = task_passes / n_runs if n_runs else 0.0
             model_entry['sandbox_passes_mean'][sandbox] = passes_mean
 
             # CI on average pass rate across tasks
-            total_trials = n_runs * len(TASKS)
+            total_trials = n_runs * len(tasks)
             p_total = task_passes / total_trials if total_trials else 0.0
             ci = binom_ci(p_total, total_trials)
             model_entry['sandbox_passes_ci'][sandbox] = ci
@@ -150,19 +227,25 @@ def build_summary(pass_counts, run_counts, run_totals, tool_reads):
             overall_total += task_passes
             overall_n += total_trials
 
+            rubric_mean = (task_rubric_total / task_rubric_n) if task_rubric_n else 0.0
+            model_entry['rubric'][sandbox] = {
+                'mean': rubric_mean,
+                'runs': task_rubric_n,
+            }
+
         overall_p = overall_total / overall_n if overall_n else 0.0
-        model_entry['overall_passes_mean'] = overall_p * len(SANDboxes) * len(TASKS)
+        model_entry['overall_passes_mean'] = overall_p * len(sandboxes) * len(tasks)
         model_entry['overall_passes_ci'] = binom_ci(overall_p, overall_n)
 
         # tool usage summary
         tool_summary = {}
-        for sandbox in SANDboxes:
+        for sandbox in sandboxes:
             file_hits = Counter()
             total_reads = 0
             total_unique_reads = 0
             total_tasks = 0
 
-            for task in TASKS:
+            for task in tasks:
                 for reads in tool_reads[model][sandbox][task]:
                     total_tasks += 1
                     total_reads += len(reads)
@@ -182,6 +265,27 @@ def build_summary(pass_counts, run_counts, run_totals, tool_reads):
             }
 
         model_entry['tool_usage'] = tool_summary
+
+        # cost summary
+        costs = []
+        tokens = []
+        for usage in run_token_usage.get(model, []):
+            tokens.append(usage)
+            cost = cost_from_usage(model, usage) if usage else None
+            costs.append(cost)
+
+        known_costs = [c for c in costs if c is not None]
+        cost_mean = sum(known_costs) / len(known_costs) if known_costs else None
+        overall_passes = model_entry['overall_passes_mean']
+        cost_per_pass = (cost_mean / overall_passes) if cost_mean is not None and overall_passes else None
+
+        model_entry['cost'] = {
+            'per_run': costs,
+            'mean_usd': cost_mean,
+            'mean_usd_per_pass': cost_per_pass,
+            'token_usage': tokens,
+        }
+
         summary['per_model'][model] = model_entry
 
     # plateau analysis
@@ -202,19 +306,19 @@ def build_summary(pass_counts, run_counts, run_totals, tool_reads):
     return summary
 
 
-def write_summary(summary):
+def write_summary(summary, suffix=None):
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    out_path = OUTPUT_DIR / 'architecture_sampling_summary.json'
+    out_path = OUTPUT_DIR / apply_suffix('architecture_sampling_summary.json', suffix)
     with out_path.open('w') as f:
         json.dump(summary, f, indent=2)
     return out_path
 
 
-def plot_charts(summary):
+def plot_charts(summary, suffix=None):
     out_dir = OUTPUT_DIR
-    models = MODELS
-    sandboxes = SANDboxes
-    tasks = TASKS
+    models = summary['models']
+    sandboxes = summary['sandboxes']
+    tasks = summary['tasks']
 
     # matrix: mean passes per sandbox (out of 3)
     matrix = np.zeros((len(models), len(sandboxes)), dtype=float)
@@ -237,7 +341,7 @@ def plot_charts(summary):
     cbar = fig.colorbar(img, ax=ax, fraction=0.046, pad=0.04)
     cbar.set_label('Mean Passes (0-3)')
     fig.tight_layout()
-    fig.savefig(out_dir / 'architecture_benchmark_matrix_multi.png', dpi=200)
+    fig.savefig(out_dir / apply_suffix('architecture_benchmark_matrix_multi.png', suffix), dpi=200)
     plt.close(fig)
 
     # model totals (mean passes out of 9)
@@ -253,7 +357,7 @@ def plot_charts(summary):
     for i, v in enumerate(model_totals):
         ax.text(i, v + 0.1, f"{v:.2f}", ha='center', va='bottom')
     fig.tight_layout()
-    fig.savefig(out_dir / 'architecture_benchmark_model_totals_multi.png', dpi=200)
+    fig.savefig(out_dir / apply_suffix('architecture_benchmark_model_totals_multi.png', suffix), dpi=200)
     plt.close(fig)
 
     # model stacked by sandbox
@@ -271,7 +375,7 @@ def plot_charts(summary):
     ax.set_title('Architecture Benchmark (Multi-Run): Passes by Model and Sandbox')
     ax.legend(frameon=False)
     fig.tight_layout()
-    fig.savefig(out_dir / 'architecture_benchmark_model_stacked_multi.png', dpi=200)
+    fig.savefig(out_dir / apply_suffix('architecture_benchmark_model_stacked_multi.png', suffix), dpi=200)
     plt.close(fig)
 
     # sandbox totals
@@ -287,7 +391,7 @@ def plot_charts(summary):
     for i, v in enumerate(sandbox_totals):
         ax.text(i, v + 0.1, f"{v:.2f}", ha='center', va='bottom')
     fig.tight_layout()
-    fig.savefig(out_dir / 'architecture_benchmark_sandbox_totals_multi.png', dpi=200)
+    fig.savefig(out_dir / apply_suffix('architecture_benchmark_sandbox_totals_multi.png', suffix), dpi=200)
     plt.close(fig)
 
     # summary pass rates
@@ -314,23 +418,106 @@ def plot_charts(summary):
         axes[1].text(i, v + 0.02, f"{v:.2f}", ha='center', va='bottom', fontsize=9)
 
     fig.tight_layout()
-    fig.savefig(out_dir / 'architecture_benchmark_summary_multi.png', dpi=200)
+    fig.savefig(out_dir / apply_suffix('architecture_benchmark_summary_multi.png', suffix), dpi=200)
     plt.close(fig)
+
+    # rubric summary (mean total score by model)
+    rubric_scores = []
+    for model in models:
+        sandbox_scores = []
+        for sandbox in sandboxes:
+            entry = summary['per_model'][model]['rubric'].get(sandbox, {})
+            sandbox_scores.append(entry.get('mean', 0.0))
+        rubric_scores.append(sum(sandbox_scores) / len(sandbox_scores) if sandbox_scores else 0.0)
+
+    fig, ax = plt.subplots(figsize=(6.2, 3.4))
+    ax.bar(range(len(models)), rubric_scores, color=['#7aa6c2', '#4f7fa3', '#2b5c84'][:len(models)])
+    ax.set_xticks(range(len(models)))
+    ax.set_xticklabels(models, rotation=20, ha='right')
+    ax.set_ylim(0, 1)
+    ax.set_ylabel('Mean Rubric Score (0-1)')
+    ax.set_title('Architecture Benchmark: Rubric Score by Model')
+    for i, v in enumerate(rubric_scores):
+        ax.text(i, v + 0.02, f"{v:.2f}", ha='center', va='bottom', fontsize=9)
+    fig.tight_layout()
+    fig.savefig(out_dir / apply_suffix('architecture_benchmark_rubric_model.png', suffix), dpi=200)
+    plt.close(fig)
+
+    # cost curve (Pareto)
+    cost_points = []
+    for model in models:
+        cost_mean = summary['per_model'][model]['cost'].get('mean_usd')
+        performance = summary['per_model'][model].get('overall_passes_mean', 0.0)
+        if cost_mean is None:
+            continue
+        cost_points.append((cost_mean, performance, model))
+
+    if cost_points:
+        fig, ax = plt.subplots(figsize=(6.2, 3.6))
+        xs = [p[0] for p in cost_points]
+        ys = [p[1] for p in cost_points]
+        ax.scatter(xs, ys, color='#2b5c84')
+        for x, y, label in cost_points:
+            ax.text(x, y + 0.05, label, ha='center', va='bottom', fontsize=8)
+        ax.set_xlabel('Mean Cost per Run (USD)')
+        ax.set_ylabel('Mean Passes (out of 9)')
+        ax.set_title('Architecture Benchmark: Cost vs Performance')
+        ax.set_ylim(0, len(sandboxes) * len(tasks))
+        fig.tight_layout()
+        fig.savefig(out_dir / apply_suffix('architecture_benchmark_cost_curve.png', suffix), dpi=200)
+        plt.close(fig)
 
 
 def main():
-    runs = load_runs()
-    if not runs:
-        print('No runs found in', INPUT_DIR)
+    input_dir_arg, suffix = parse_args()
+    input_dir = input_dir_arg or Path(os.environ.get('ARCH_RUN_DIR', ''))
+    if not input_dir or str(input_dir) == '.':
+        input_dir = latest_runs_dir()
+
+    if not input_dir:
+        print('No run directory found', file=sys.stderr)
         return
 
-    pass_counts, run_counts, run_totals, tool_reads = summarize_runs(runs)
-    summary = build_summary(pass_counts, run_counts, run_totals, tool_reads)
+    runs = load_runs(input_dir)
+    if not runs:
+        print('No runs found in', input_dir)
+        return
 
-    out_path = write_summary(summary)
+    def collect_dimensions(runs):
+        first_meta = runs[0].get('metadata', {})
+        models = [payload['metadata']['model'] for payload in runs]
+        models_unique = list(dict.fromkeys(models))
+
+        sandboxes = first_meta.get('sandboxes')
+        if not sandboxes:
+            sandboxes = sorted({r['sandbox'] for payload in runs for r in payload.get('results', [])})
+
+        tasks = first_meta.get('tasks')
+        if not tasks:
+            tasks = sorted({r['task']['id'] for payload in runs for r in payload.get('results', [])})
+
+        return models_unique, sandboxes, tasks
+
+    models, sandboxes, tasks = collect_dimensions(runs)
+
+    pass_counts, run_counts, run_totals, tool_reads, run_token_usage, rubric_sums, rubric_counts = summarize_runs(runs)
+    summary = build_summary(
+        pass_counts,
+        run_counts,
+        run_totals,
+        tool_reads,
+        run_token_usage,
+        rubric_sums,
+        rubric_counts,
+        models,
+        sandboxes,
+        tasks,
+    )
+
+    out_path = write_summary(summary, suffix)
     print('Wrote summary to', out_path)
 
-    plot_charts(summary)
+    plot_charts(summary, suffix)
     print('Charts written to', OUTPUT_DIR)
 
 

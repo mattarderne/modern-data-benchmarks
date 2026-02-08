@@ -1,10 +1,10 @@
 # TODO
 
-Next priority
-- Add token usage logging for API calls and generate a Pareto cost curve for architecture runs.
-
 Validation depth
-- Evaluate lint/test options per sandbox (dbt compile/test with duckdb adapter, sqlfluff, TS typecheck/ESLint for typed, smoke/unit checks for drizzle, and a minimal validation check for cube measures).
+- Decide whether to enforce lint/test gates based on the design note and parity considerations.
 
 Scoring
-- Define and test a scoring rubric beyond binary pass/fail (code correctness vs numeric correctness, schema adherence, tool usage, and partial credit).
+- Calibrate rubric weights and validate scoring on a small labeled set.
+
+Robustness
+- Add realistic drift scenarios (late Stripe invoices, missing stripe_customer_id mappings).

@@ -141,6 +141,28 @@ Variance plateau notes:
 
 ![Architecture Benchmark Sandbox Totals (Multi-Run)](architecture_benchmark_sandbox_totals_multi.png)
 
+## Cost-Sensitive 1-Pass Runs (February 8, 2026)
+
+Max turns set to **10** for cost control. These runs also include token usage logging and rubric scoring.
+
+Pass counts are out of 3 tasks per sandbox:
+
+| Model | app-typed | app-drizzle | warehouse-dbt | Overall (out of 9) |
+|---|---:|---:|---:|---:|
+| claude-3-5-haiku-20241022 | 1/3 | 0/3 | 0/3 | 1 |
+| claude-sonnet-4-20250514 | 2/3 | 0/3 | 0/3 | 2 |
+
+Token usage and cost summary:
+
+| Model | Input tokens | Output tokens | Cost per run (USD) | Cost per pass (USD) |
+|---|---:|---:|---:|---:|
+| claude-3-5-haiku-20241022 | 143,657 | 24,377 | 0.0174 | 0.0174 |
+| claude-sonnet-4-20250514 | 232,100 | 44,100 | 1.3578 | 0.6789 |
+
+![Architecture Benchmark Cost Curve (1-pass)](architecture_benchmark_cost_curve_2026-02-08-1pass.png)
+
+![Architecture Benchmark Rubric Score (1-pass)](architecture_benchmark_rubric_model_2026-02-08-1pass.png)
+
 ## Charts
 
 ![Architecture Benchmark Matrix](architecture_benchmark_matrix.png)
