@@ -219,3 +219,4 @@ Scoring is outcome‑based: code must execute and return the correct numeric val
 - Add token usage logging for API calls and generate a Pareto cost curve for architecture runs.
 - Evaluate lint/test options per sandbox (dbt compile/test with duckdb adapter, sqlfluff, TS typecheck/ESLint for typed, smoke/unit checks for drizzle, and a minimal validation check for cube measures).
 - Define and test a scoring rubric beyond binary pass/fail (code correctness vs numeric correctness, schema adherence, tool usage, and partial credit).
+- Add realistic drift scenarios (e.g., late-arriving Stripe invoices, missing stripe_customer_id mappings) to test robustness under sync delays.
