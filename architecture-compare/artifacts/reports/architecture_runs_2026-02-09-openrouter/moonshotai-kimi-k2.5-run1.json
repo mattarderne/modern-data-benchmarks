@@ -1,0 +1,463 @@
+{
+  "metadata": {
+    "model": "moonshotai/kimi-k2.5",
+    "sandboxes": [
+      "app-typed",
+      "app-drizzle",
+      "warehouse-dbt"
+    ],
+    "tasks": [
+      "active_user_arpu",
+      "org_churn_rate",
+      "avg_org_ltv"
+    ],
+    "maxTurns": 8,
+    "drift": "none",
+    "startedAt": "2026-02-09T08:19:47.135Z",
+    "endedAt": "2026-02-09T08:36:30.660Z",
+    "tokenUsage": {
+      "inputTokens": 70568,
+      "outputTokens": 23580,
+      "totalTokens": 94148
+    }
+  },
+  "results": [
+    {
+      "sandbox": "app-typed",
+      "model": "moonshotai/kimi-k2.5",
+      "task": {
+        "id": "active_user_arpu",
+        "name": "Active User ARPU",
+        "description": "Calculate ARPU for active users.\nFormula: total paid invoice amount for active users / count of active users\nActive users: users with API usage in the last 30 days (relative to latest api_usage.created_at).\nReturn: number (rounded to nearest integer for TypeScript/Drizzle, raw for SQL)",
+        "dataFile": "invoices",
+        "dataFiles": [
+          "users",
+          "api_usage",
+          "invoices"
+        ],
+        "functionName": "calculateActiveUserARPU",
+        "sqlFile": "fct_active_user_arpu.sql",
+        "measureName": "active_user_arpu",
+        "signature": "calculateActiveUserARPU(users: User[], apiUsage: ApiUsage[], invoices: StripeInvoice[]): number",
+        "tolerance": 1
+      },
+      "pass": false,
+      "expected": 85365,
+      "turns": 6,
+      "error": "TypeScript error: node:internal/modules/esm/resolve:275\n    throw new ERR_MODULE_NOT_FOUND(\n          ^\n\nError [ERR_MODULE_NOT_FOUND]: Cannot find module '/Users/mattbook-air/claude-stuff/ai-research/data-architecture-comparison/architecture-compare/sandbox-runs/app-typed-moonshotai-kimi-k2.5-1770625187150/src/analyt",
+      "durationMs": 76091,
+      "toolUsage": {
+        "readFiles": [
+          "src/analytics/queries.ts",
+          "src/types/internal.ts",
+          "src/types/stripe.ts",
+          "src/analytics/derived.ts"
+        ],
+        "listFiles": [],
+        "writeFiles": [
+          "src/analytics/queries.ts"
+        ]
+      },
+      "tokenUsage": {
+        "inputTokens": 7900,
+        "outputTokens": 1608,
+        "totalTokens": 9508
+      },
+      "rubric": {
+        "runtime": 0,
+        "output": 0,
+        "schema": 0,
+        "toolUsage": 1,
+        "total": 0.25
+      }
+    },
+    {
+      "sandbox": "app-typed",
+      "model": "moonshotai/kimi-k2.5",
+      "task": {
+        "id": "org_churn_rate",
+        "name": "Organization Churn Rate",
+        "description": "Calculate organization churn rate.\nChurned orgs: organizations with no active subscriptions AND no API usage in last 30 days (relative to latest api_usage.created_at).\nDenominator: organizations with at least one user.\nReturn: decimal with 4 decimal places (e.g., 0.2168)",
+        "dataFile": "subscriptions",
+        "dataFiles": [
+          "organizations",
+          "users",
+          "subscriptions",
+          "api_usage"
+        ],
+        "functionName": "calculateOrgChurnRate",
+        "sqlFile": "fct_org_churn_rate.sql",
+        "measureName": "org_churn_rate",
+        "signature": "calculateOrgChurnRate(organizations: Organization[], users: User[], subscriptions: StripeSubscription[], apiUsage: ApiUsage[]): number",
+        "tolerance": 0.001
+      },
+      "pass": true,
+      "expected": 0,
+      "actual": 0,
+      "turns": 6,
+      "durationMs": 84303,
+      "toolUsage": {
+        "readFiles": [
+          "src/analytics/queries.ts",
+          "src/types/internal.ts",
+          "src/types/stripe.ts",
+          "src/analytics/derived.ts"
+        ],
+        "listFiles": [],
+        "writeFiles": [
+          "src/analytics/queries.ts"
+        ]
+      },
+      "tokenUsage": {
+        "inputTokens": 8280,
+        "outputTokens": 1928,
+        "totalTokens": 10208
+      },
+      "rubric": {
+        "runtime": 1,
+        "output": 1,
+        "schema": 1,
+        "toolUsage": 1,
+        "total": 1
+      }
+    },
+    {
+      "sandbox": "app-typed",
+      "model": "moonshotai/kimi-k2.5",
+      "task": {
+        "id": "avg_org_ltv",
+        "name": "Average Org LTV",
+        "description": "Calculate average organization lifetime value (LTV).\nFormula: average of (sum of paid invoice amount per organization), across orgs with at least one user.\nJoin users -> stripe_customer_id -> invoices.\nReturn: number (rounded to nearest integer for TypeScript/Drizzle, raw for SQL)",
+        "dataFile": "invoices",
+        "dataFiles": [
+          "organizations",
+          "users",
+          "invoices"
+        ],
+        "functionName": "calculateAvgOrgLTV",
+        "sqlFile": "fct_avg_org_ltv.sql",
+        "measureName": "avg_org_ltv",
+        "signature": "calculateAvgOrgLTV(organizations: Organization[], users: User[], invoices: StripeInvoice[]): number",
+        "tolerance": 1
+      },
+      "pass": false,
+      "expected": 811610,
+      "actual": 808651,
+      "turns": 6,
+      "durationMs": 108820,
+      "toolUsage": {
+        "readFiles": [
+          "src/analytics/queries.ts",
+          "src/types/internal.ts",
+          "src/types/stripe.ts"
+        ],
+        "listFiles": [],
+        "writeFiles": [
+          "src/analytics/queries.ts",
+          "src/analytics/queries.ts"
+        ]
+      },
+      "tokenUsage": {
+        "inputTokens": 8570,
+        "outputTokens": 2688,
+        "totalTokens": 11258
+      },
+      "rubric": {
+        "runtime": 1,
+        "output": 0,
+        "schema": 1,
+        "toolUsage": 0.75,
+        "total": 0.6875
+      }
+    },
+    {
+      "sandbox": "app-drizzle",
+      "model": "moonshotai/kimi-k2.5",
+      "task": {
+        "id": "active_user_arpu",
+        "name": "Active User ARPU",
+        "description": "Calculate ARPU for active users.\nFormula: total paid invoice amount for active users / count of active users\nActive users: users with API usage in the last 30 days (relative to latest api_usage.created_at).\nReturn: number (rounded to nearest integer for TypeScript/Drizzle, raw for SQL)",
+        "dataFile": "invoices",
+        "dataFiles": [
+          "users",
+          "api_usage",
+          "invoices"
+        ],
+        "functionName": "calculateActiveUserARPU",
+        "sqlFile": "fct_active_user_arpu.sql",
+        "measureName": "active_user_arpu",
+        "signature": "calculateActiveUserARPU(users: User[], apiUsage: ApiUsage[], invoices: StripeInvoice[]): number",
+        "tolerance": 1
+      },
+      "pass": true,
+      "expected": 85365,
+      "actual": 85365,
+      "turns": 5,
+      "durationMs": 213280,
+      "toolUsage": {
+        "readFiles": [
+          "src/schema.ts",
+          "src/queries.ts"
+        ],
+        "listFiles": [],
+        "writeFiles": [
+          "src/queries.ts"
+        ]
+      },
+      "tokenUsage": {
+        "inputTokens": 7607,
+        "outputTokens": 6410,
+        "totalTokens": 14017
+      },
+      "rubric": {
+        "runtime": 1,
+        "output": 1,
+        "schema": 1,
+        "toolUsage": 0.6666666666666666,
+        "total": 0.9166666666666666
+      }
+    },
+    {
+      "sandbox": "app-drizzle",
+      "model": "moonshotai/kimi-k2.5",
+      "task": {
+        "id": "org_churn_rate",
+        "name": "Organization Churn Rate",
+        "description": "Calculate organization churn rate.\nChurned orgs: organizations with no active subscriptions AND no API usage in last 30 days (relative to latest api_usage.created_at).\nDenominator: organizations with at least one user.\nReturn: decimal with 4 decimal places (e.g., 0.2168)",
+        "dataFile": "subscriptions",
+        "dataFiles": [
+          "organizations",
+          "users",
+          "subscriptions",
+          "api_usage"
+        ],
+        "functionName": "calculateOrgChurnRate",
+        "sqlFile": "fct_org_churn_rate.sql",
+        "measureName": "org_churn_rate",
+        "signature": "calculateOrgChurnRate(organizations: Organization[], users: User[], subscriptions: StripeSubscription[], apiUsage: ApiUsage[]): number",
+        "tolerance": 0.001
+      },
+      "pass": true,
+      "expected": 0,
+      "actual": 0,
+      "turns": 6,
+      "durationMs": 249526,
+      "toolUsage": {
+        "readFiles": [
+          "src/schema.ts",
+          "src/queries.ts"
+        ],
+        "listFiles": [],
+        "writeFiles": [
+          "src/queries.ts",
+          "src/queries.ts",
+          "src/queries.ts"
+        ]
+      },
+      "tokenUsage": {
+        "inputTokens": 15487,
+        "outputTokens": 6459,
+        "totalTokens": 21946
+      },
+      "rubric": {
+        "runtime": 1,
+        "output": 1,
+        "schema": 1,
+        "toolUsage": 0.6666666666666666,
+        "total": 0.9166666666666666
+      }
+    },
+    {
+      "sandbox": "app-drizzle",
+      "model": "moonshotai/kimi-k2.5",
+      "task": {
+        "id": "avg_org_ltv",
+        "name": "Average Org LTV",
+        "description": "Calculate average organization lifetime value (LTV).\nFormula: average of (sum of paid invoice amount per organization), across orgs with at least one user.\nJoin users -> stripe_customer_id -> invoices.\nReturn: number (rounded to nearest integer for TypeScript/Drizzle, raw for SQL)",
+        "dataFile": "invoices",
+        "dataFiles": [
+          "organizations",
+          "users",
+          "invoices"
+        ],
+        "functionName": "calculateAvgOrgLTV",
+        "sqlFile": "fct_avg_org_ltv.sql",
+        "measureName": "avg_org_ltv",
+        "signature": "calculateAvgOrgLTV(organizations: Organization[], users: User[], invoices: StripeInvoice[]): number",
+        "tolerance": 1
+      },
+      "pass": true,
+      "expected": 811610,
+      "actual": 811610,
+      "turns": 4,
+      "durationMs": 78406,
+      "toolUsage": {
+        "readFiles": [
+          "src/schema.ts",
+          "src/queries.ts"
+        ],
+        "listFiles": [],
+        "writeFiles": [
+          "src/queries.ts"
+        ]
+      },
+      "tokenUsage": {
+        "inputTokens": 5625,
+        "outputTokens": 1607,
+        "totalTokens": 7232
+      },
+      "rubric": {
+        "runtime": 1,
+        "output": 1,
+        "schema": 1,
+        "toolUsage": 0.6666666666666666,
+        "total": 0.9166666666666666
+      }
+    },
+    {
+      "sandbox": "warehouse-dbt",
+      "model": "moonshotai/kimi-k2.5",
+      "task": {
+        "id": "active_user_arpu",
+        "name": "Active User ARPU",
+        "description": "Calculate ARPU for active users.\nFormula: total paid invoice amount for active users / count of active users\nActive users: users with API usage in the last 30 days (relative to latest api_usage.created_at).\nReturn: number (rounded to nearest integer for TypeScript/Drizzle, raw for SQL)",
+        "dataFile": "invoices",
+        "dataFiles": [
+          "users",
+          "api_usage",
+          "invoices"
+        ],
+        "functionName": "calculateActiveUserARPU",
+        "sqlFile": "fct_active_user_arpu.sql",
+        "measureName": "active_user_arpu",
+        "signature": "calculateActiveUserARPU(users: User[], apiUsage: ApiUsage[], invoices: StripeInvoice[]): number",
+        "tolerance": 1
+      },
+      "pass": false,
+      "expected": 85365,
+      "turns": 7,
+      "error": "DuckDB error: {\"error\":\"Binder Error: Referenced column \\\"created_at\\\" not found in FROM clause!\\nCandidate bindings: \\\"usage_created_at\\\", \\\"latency_ms\\\"\\n\\nLINE 7:   select max(created_at) as latest_timestamp\\n                     ^\"}\n",
+      "durationMs": 82031,
+      "toolUsage": {
+        "readFiles": [
+          "models/marts/fct_mrr.sql",
+          "models/marts/fct_org_revenue.sql"
+        ],
+        "listFiles": [
+          "models/marts",
+          "models/staging"
+        ],
+        "writeFiles": [
+          "models/marts/fct_active_user_arpu.sql"
+        ]
+      },
+      "tokenUsage": {
+        "inputTokens": 6189,
+        "outputTokens": 1543,
+        "totalTokens": 7732
+      },
+      "rubric": {
+        "runtime": 0,
+        "output": 0,
+        "schema": 0,
+        "toolUsage": 0.14285714285714285,
+        "total": 0.03571428571428571
+      }
+    },
+    {
+      "sandbox": "warehouse-dbt",
+      "model": "moonshotai/kimi-k2.5",
+      "task": {
+        "id": "org_churn_rate",
+        "name": "Organization Churn Rate",
+        "description": "Calculate organization churn rate.\nChurned orgs: organizations with no active subscriptions AND no API usage in last 30 days (relative to latest api_usage.created_at).\nDenominator: organizations with at least one user.\nReturn: decimal with 4 decimal places (e.g., 0.2168)",
+        "dataFile": "subscriptions",
+        "dataFiles": [
+          "organizations",
+          "users",
+          "subscriptions",
+          "api_usage"
+        ],
+        "functionName": "calculateOrgChurnRate",
+        "sqlFile": "fct_org_churn_rate.sql",
+        "measureName": "org_churn_rate",
+        "signature": "calculateOrgChurnRate(organizations: Organization[], users: User[], subscriptions: StripeSubscription[], apiUsage: ApiUsage[]): number",
+        "tolerance": 0.001
+      },
+      "pass": false,
+      "expected": 0,
+      "turns": 8,
+      "error": "Max turns exceeded",
+      "durationMs": 56460,
+      "toolUsage": {
+        "readFiles": [
+          "models/marts/fct_mrr.sql",
+          "models/staging",
+          "models/staging/stg_app_organizations.sql",
+          "models/staging/stg_app_api_usage.sql",
+          "models/staging/stg_app_users.sql"
+        ],
+        "listFiles": [
+          "models",
+          "models/marts",
+          "models/staging"
+        ],
+        "writeFiles": []
+      },
+      "tokenUsage": {
+        "inputTokens": 5813,
+        "outputTokens": 746,
+        "totalTokens": 6559
+      },
+      "rubric": {
+        "runtime": 0,
+        "output": 0,
+        "schema": 0,
+        "toolUsage": 0.42857142857142855,
+        "total": 0.10714285714285714
+      }
+    },
+    {
+      "sandbox": "warehouse-dbt",
+      "model": "moonshotai/kimi-k2.5",
+      "task": {
+        "id": "avg_org_ltv",
+        "name": "Average Org LTV",
+        "description": "Calculate average organization lifetime value (LTV).\nFormula: average of (sum of paid invoice amount per organization), across orgs with at least one user.\nJoin users -> stripe_customer_id -> invoices.\nReturn: number (rounded to nearest integer for TypeScript/Drizzle, raw for SQL)",
+        "dataFile": "invoices",
+        "dataFiles": [
+          "organizations",
+          "users",
+          "invoices"
+        ],
+        "functionName": "calculateAvgOrgLTV",
+        "sqlFile": "fct_avg_org_ltv.sql",
+        "measureName": "avg_org_ltv",
+        "signature": "calculateAvgOrgLTV(organizations: Organization[], users: User[], invoices: StripeInvoice[]): number",
+        "tolerance": 1
+      },
+      "pass": false,
+      "expected": 811610,
+      "turns": 8,
+      "error": "Max turns exceeded",
+      "durationMs": 53181,
+      "toolUsage": {
+        "readFiles": [],
+        "listFiles": [],
+        "writeFiles": []
+      },
+      "tokenUsage": {
+        "inputTokens": 5097,
+        "outputTokens": 591,
+        "totalTokens": 5688
+      },
+      "rubric": {
+        "runtime": 0,
+        "output": 0,
+        "schema": 0,
+        "toolUsage": 0,
+        "total": 0
+      }
+    }
+  ]
+}

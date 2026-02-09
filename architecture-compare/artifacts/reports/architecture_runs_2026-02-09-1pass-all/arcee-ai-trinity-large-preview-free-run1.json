@@ -1,0 +1,464 @@
+{
+  "metadata": {
+    "model": "arcee-ai/trinity-large-preview:free",
+    "sandboxes": [
+      "app-typed",
+      "app-drizzle",
+      "warehouse-dbt"
+    ],
+    "tasks": [
+      "active_user_arpu",
+      "org_churn_rate",
+      "avg_org_ltv"
+    ],
+    "maxTurns": 8,
+    "drift": "none",
+    "startedAt": "2026-02-09T09:00:57.054Z",
+    "endedAt": "2026-02-09T09:05:07.302Z",
+    "tokenUsage": {
+      "inputTokens": 49374,
+      "outputTokens": 3664,
+      "totalTokens": 53038
+    }
+  },
+  "results": [
+    {
+      "sandbox": "app-typed",
+      "model": "arcee-ai/trinity-large-preview:free",
+      "task": {
+        "id": "active_user_arpu",
+        "name": "Active User ARPU",
+        "description": "Calculate ARPU for active users.\nFormula: total paid invoice amount for active users / count of active users\nActive users: users with API usage in the last 30 days (relative to latest api_usage.created_at).\nReturn: number (rounded to nearest integer for TypeScript/Drizzle, raw for SQL)",
+        "dataFile": "invoices",
+        "dataFiles": [
+          "users",
+          "api_usage",
+          "invoices"
+        ],
+        "functionName": "calculateActiveUserARPU",
+        "sqlFile": "fct_active_user_arpu.sql",
+        "measureName": "active_user_arpu",
+        "signature": "calculateActiveUserARPU(users: User[], apiUsage: ApiUsage[], invoices: StripeInvoice[]): number",
+        "tolerance": 1
+      },
+      "pass": false,
+      "expected": 85365,
+      "turns": 8,
+      "error": "Max turns exceeded",
+      "durationMs": 19067,
+      "toolUsage": {
+        "readFiles": [],
+        "listFiles": [],
+        "writeFiles": []
+      },
+      "tokenUsage": {
+        "inputTokens": 3859,
+        "outputTokens": 132,
+        "totalTokens": 3991
+      },
+      "rubric": {
+        "runtime": 0,
+        "output": 0,
+        "schema": 0,
+        "toolUsage": 0,
+        "total": 0
+      }
+    },
+    {
+      "sandbox": "app-typed",
+      "model": "arcee-ai/trinity-large-preview:free",
+      "task": {
+        "id": "org_churn_rate",
+        "name": "Organization Churn Rate",
+        "description": "Calculate organization churn rate.\nChurned orgs: organizations with no active subscriptions AND no API usage in last 30 days (relative to latest api_usage.created_at).\nDenominator: organizations with at least one user.\nReturn: decimal with 4 decimal places (e.g., 0.2168)",
+        "dataFile": "subscriptions",
+        "dataFiles": [
+          "organizations",
+          "users",
+          "subscriptions",
+          "api_usage"
+        ],
+        "functionName": "calculateOrgChurnRate",
+        "sqlFile": "fct_org_churn_rate.sql",
+        "measureName": "org_churn_rate",
+        "signature": "calculateOrgChurnRate(organizations: Organization[], users: User[], subscriptions: StripeSubscription[], apiUsage: ApiUsage[]): number",
+        "tolerance": 0.001
+      },
+      "pass": false,
+      "expected": 0,
+      "turns": 8,
+      "error": "Max turns exceeded",
+      "durationMs": 20238,
+      "toolUsage": {
+        "readFiles": [
+          "src/analytics/queries.ts",
+          "src/types/internal.ts",
+          "src/types/stripe.ts",
+          "src/analytics/derived.ts"
+        ],
+        "listFiles": [
+          "",
+          "src",
+          "src/analytics",
+          "src/types"
+        ],
+        "writeFiles": []
+      },
+      "tokenUsage": {
+        "inputTokens": 5563,
+        "outputTokens": 191,
+        "totalTokens": 5754
+      },
+      "rubric": {
+        "runtime": 0,
+        "output": 0,
+        "schema": 0,
+        "toolUsage": 1,
+        "total": 0.25
+      }
+    },
+    {
+      "sandbox": "app-typed",
+      "model": "arcee-ai/trinity-large-preview:free",
+      "task": {
+        "id": "avg_org_ltv",
+        "name": "Average Org LTV",
+        "description": "Calculate average organization lifetime value (LTV).\nFormula: average of (sum of paid invoice amount per organization), across orgs with at least one user.\nJoin users -> stripe_customer_id -> invoices.\nReturn: number (rounded to nearest integer for TypeScript/Drizzle, raw for SQL)",
+        "dataFile": "invoices",
+        "dataFiles": [
+          "organizations",
+          "users",
+          "invoices"
+        ],
+        "functionName": "calculateAvgOrgLTV",
+        "sqlFile": "fct_avg_org_ltv.sql",
+        "measureName": "avg_org_ltv",
+        "signature": "calculateAvgOrgLTV(organizations: Organization[], users: User[], invoices: StripeInvoice[]): number",
+        "tolerance": 1
+      },
+      "pass": false,
+      "expected": 811610,
+      "turns": 8,
+      "error": "Max turns exceeded",
+      "durationMs": 26804,
+      "toolUsage": {
+        "readFiles": [],
+        "listFiles": [],
+        "writeFiles": []
+      },
+      "tokenUsage": {
+        "inputTokens": 4257,
+        "outputTokens": 528,
+        "totalTokens": 4785
+      },
+      "rubric": {
+        "runtime": 0,
+        "output": 0,
+        "schema": 0,
+        "toolUsage": 0,
+        "total": 0
+      }
+    },
+    {
+      "sandbox": "app-drizzle",
+      "model": "arcee-ai/trinity-large-preview:free",
+      "task": {
+        "id": "active_user_arpu",
+        "name": "Active User ARPU",
+        "description": "Calculate ARPU for active users.\nFormula: total paid invoice amount for active users / count of active users\nActive users: users with API usage in the last 30 days (relative to latest api_usage.created_at).\nReturn: number (rounded to nearest integer for TypeScript/Drizzle, raw for SQL)",
+        "dataFile": "invoices",
+        "dataFiles": [
+          "users",
+          "api_usage",
+          "invoices"
+        ],
+        "functionName": "calculateActiveUserARPU",
+        "sqlFile": "fct_active_user_arpu.sql",
+        "measureName": "active_user_arpu",
+        "signature": "calculateActiveUserARPU(users: User[], apiUsage: ApiUsage[], invoices: StripeInvoice[]): number",
+        "tolerance": 1
+      },
+      "pass": false,
+      "expected": 85365,
+      "turns": 6,
+      "error": "Drizzle error: file:///Users/mattbook-air/claude-stuff/ai-research/data-architecture-comparison/architecture-compare/sandbox-runs/app-drizzle-arcee-ai-trinity-large-preview-free-1770627726614/src/queries.ts:41\n    .select({ latest: apiUsage.created_at.max() })\n                                          ^\n\nTypeError",
+      "durationMs": 36430,
+      "toolUsage": {
+        "readFiles": [
+          "",
+          "src/schema.ts",
+          "src/queries.ts"
+        ],
+        "listFiles": [],
+        "writeFiles": [
+          "src/queries.ts",
+          "src/queries.ts"
+        ]
+      },
+      "tokenUsage": {
+        "inputTokens": 8042,
+        "outputTokens": 751,
+        "totalTokens": 8793
+      },
+      "rubric": {
+        "runtime": 0,
+        "output": 0,
+        "schema": 0,
+        "toolUsage": 0.6666666666666666,
+        "total": 0.16666666666666666
+      }
+    },
+    {
+      "sandbox": "app-drizzle",
+      "model": "arcee-ai/trinity-large-preview:free",
+      "task": {
+        "id": "org_churn_rate",
+        "name": "Organization Churn Rate",
+        "description": "Calculate organization churn rate.\nChurned orgs: organizations with no active subscriptions AND no API usage in last 30 days (relative to latest api_usage.created_at).\nDenominator: organizations with at least one user.\nReturn: decimal with 4 decimal places (e.g., 0.2168)",
+        "dataFile": "subscriptions",
+        "dataFiles": [
+          "organizations",
+          "users",
+          "subscriptions",
+          "api_usage"
+        ],
+        "functionName": "calculateOrgChurnRate",
+        "sqlFile": "fct_org_churn_rate.sql",
+        "measureName": "org_churn_rate",
+        "signature": "calculateOrgChurnRate(organizations: Organization[], users: User[], subscriptions: StripeSubscription[], apiUsage: ApiUsage[]): number",
+        "tolerance": 0.001
+      },
+      "pass": false,
+      "expected": 0,
+      "turns": 4,
+      "error": "Drizzle error: file:///Users/mattbook-air/claude-stuff/ai-research/data-architecture-comparison/architecture-compare/sandbox-runs/app-drizzle-arcee-ai-trinity-large-preview-free-1770627763331/src/queries.ts:40\n    .select({ latest: apiUsage.created_at.max() })\n                                          ^\n\nTypeError",
+      "durationMs": 38632,
+      "toolUsage": {
+        "readFiles": [
+          "src/schema.ts",
+          "src/queries.ts"
+        ],
+        "listFiles": [],
+        "writeFiles": [
+          "src/queries.ts"
+        ]
+      },
+      "tokenUsage": {
+        "inputTokens": 5711,
+        "outputTokens": 827,
+        "totalTokens": 6538
+      },
+      "rubric": {
+        "runtime": 0,
+        "output": 0,
+        "schema": 0,
+        "toolUsage": 0.6666666666666666,
+        "total": 0.16666666666666666
+      }
+    },
+    {
+      "sandbox": "app-drizzle",
+      "model": "arcee-ai/trinity-large-preview:free",
+      "task": {
+        "id": "avg_org_ltv",
+        "name": "Average Org LTV",
+        "description": "Calculate average organization lifetime value (LTV).\nFormula: average of (sum of paid invoice amount per organization), across orgs with at least one user.\nJoin users -> stripe_customer_id -> invoices.\nReturn: number (rounded to nearest integer for TypeScript/Drizzle, raw for SQL)",
+        "dataFile": "invoices",
+        "dataFiles": [
+          "organizations",
+          "users",
+          "invoices"
+        ],
+        "functionName": "calculateAvgOrgLTV",
+        "sqlFile": "fct_avg_org_ltv.sql",
+        "measureName": "avg_org_ltv",
+        "signature": "calculateAvgOrgLTV(organizations: Organization[], users: User[], invoices: StripeInvoice[]): number",
+        "tolerance": 1
+      },
+      "pass": false,
+      "expected": 811610,
+      "turns": 6,
+      "error": "Drizzle error: file:///Users/mattbook-air/claude-stuff/ai-research/data-architecture-comparison/architecture-compare/sandbox-runs/app-drizzle-arcee-ai-trinity-large-preview-free-1770627802054/src/queries.ts:42\n    .select({ avgLTV: avg(subquery.sumPaid) })\n                          ^\n\nReferenceError: subquery is n",
+      "durationMs": 45074,
+      "toolUsage": {
+        "readFiles": [
+          "",
+          "src/schema.ts",
+          "src/queries.ts"
+        ],
+        "listFiles": [],
+        "writeFiles": [
+          "src/queries.ts",
+          "src/queries.ts"
+        ]
+      },
+      "tokenUsage": {
+        "inputTokens": 8351,
+        "outputTokens": 851,
+        "totalTokens": 9202
+      },
+      "rubric": {
+        "runtime": 0,
+        "output": 0,
+        "schema": 0,
+        "toolUsage": 0.6666666666666666,
+        "total": 0.16666666666666666
+      }
+    },
+    {
+      "sandbox": "warehouse-dbt",
+      "model": "arcee-ai/trinity-large-preview:free",
+      "task": {
+        "id": "active_user_arpu",
+        "name": "Active User ARPU",
+        "description": "Calculate ARPU for active users.\nFormula: total paid invoice amount for active users / count of active users\nActive users: users with API usage in the last 30 days (relative to latest api_usage.created_at).\nReturn: number (rounded to nearest integer for TypeScript/Drizzle, raw for SQL)",
+        "dataFile": "invoices",
+        "dataFiles": [
+          "users",
+          "api_usage",
+          "invoices"
+        ],
+        "functionName": "calculateActiveUserARPU",
+        "sqlFile": "fct_active_user_arpu.sql",
+        "measureName": "active_user_arpu",
+        "signature": "calculateActiveUserARPU(users: User[], apiUsage: ApiUsage[], invoices: StripeInvoice[]): number",
+        "tolerance": 1
+      },
+      "pass": false,
+      "expected": 85365,
+      "turns": 8,
+      "error": "Max turns exceeded",
+      "durationMs": 16233,
+      "toolUsage": {
+        "readFiles": [],
+        "listFiles": [
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        "writeFiles": []
+      },
+      "tokenUsage": {
+        "inputTokens": 4124,
+        "outputTokens": 72,
+        "totalTokens": 4196
+      },
+      "rubric": {
+        "runtime": 0,
+        "output": 0,
+        "schema": 0,
+        "toolUsage": 0,
+        "total": 0
+      }
+    },
+    {
+      "sandbox": "warehouse-dbt",
+      "model": "arcee-ai/trinity-large-preview:free",
+      "task": {
+        "id": "org_churn_rate",
+        "name": "Organization Churn Rate",
+        "description": "Calculate organization churn rate.\nChurned orgs: organizations with no active subscriptions AND no API usage in last 30 days (relative to latest api_usage.created_at).\nDenominator: organizations with at least one user.\nReturn: decimal with 4 decimal places (e.g., 0.2168)",
+        "dataFile": "subscriptions",
+        "dataFiles": [
+          "organizations",
+          "users",
+          "subscriptions",
+          "api_usage"
+        ],
+        "functionName": "calculateOrgChurnRate",
+        "sqlFile": "fct_org_churn_rate.sql",
+        "measureName": "org_churn_rate",
+        "signature": "calculateOrgChurnRate(organizations: Organization[], users: User[], subscriptions: StripeSubscription[], apiUsage: ApiUsage[]): number",
+        "tolerance": 0.001
+      },
+      "pass": false,
+      "expected": 0,
+      "turns": 8,
+      "error": "Max turns exceeded",
+      "durationMs": 23813,
+      "toolUsage": {
+        "readFiles": [
+          "models/staging/stg_app_organizations.sql",
+          "models/staging/stg_app_users.sql",
+          "models/staging/stg_stripe_subscriptions.sql",
+          "models/staging/stg_app_api_usage.sql"
+        ],
+        "listFiles": [
+          "",
+          "models",
+          "models/staging"
+        ],
+        "writeFiles": []
+      },
+      "tokenUsage": {
+        "inputTokens": 4719,
+        "outputTokens": 155,
+        "totalTokens": 4874
+      },
+      "rubric": {
+        "runtime": 0,
+        "output": 0,
+        "schema": 0,
+        "toolUsage": 0.5714285714285714,
+        "total": 0.14285714285714285
+      }
+    },
+    {
+      "sandbox": "warehouse-dbt",
+      "model": "arcee-ai/trinity-large-preview:free",
+      "task": {
+        "id": "avg_org_ltv",
+        "name": "Average Org LTV",
+        "description": "Calculate average organization lifetime value (LTV).\nFormula: average of (sum of paid invoice amount per organization), across orgs with at least one user.\nJoin users -> stripe_customer_id -> invoices.\nReturn: number (rounded to nearest integer for TypeScript/Drizzle, raw for SQL)",
+        "dataFile": "invoices",
+        "dataFiles": [
+          "organizations",
+          "users",
+          "invoices"
+        ],
+        "functionName": "calculateAvgOrgLTV",
+        "sqlFile": "fct_avg_org_ltv.sql",
+        "measureName": "avg_org_ltv",
+        "signature": "calculateAvgOrgLTV(organizations: Organization[], users: User[], invoices: StripeInvoice[]): number",
+        "tolerance": 1
+      },
+      "pass": false,
+      "expected": 811610,
+      "turns": 8,
+      "error": "Max turns exceeded",
+      "durationMs": 19356,
+      "toolUsage": {
+        "readFiles": [
+          "models/staging/stg_app_users.sql",
+          "models/staging/stg_stripe_customers.sql",
+          "models/staging/stg_stripe_invoices.sql",
+          "models/staging/stg_app_organizations.sql",
+          "models/staging/stg_app_api_usage.sql"
+        ],
+        "listFiles": [
+          "",
+          "models/",
+          "models/staging/"
+        ],
+        "writeFiles": []
+      },
+      "tokenUsage": {
+        "inputTokens": 4748,
+        "outputTokens": 157,
+        "totalTokens": 4905
+      },
+      "rubric": {
+        "runtime": 0,
+        "output": 0,
+        "schema": 0,
+        "toolUsage": 0.5714285714285714,
+        "total": 0.14285714285714285
+      }
+    }
+  ]
+}

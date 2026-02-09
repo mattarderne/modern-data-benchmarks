@@ -163,6 +163,37 @@ Token usage and cost summary:
 
 ![Architecture Benchmark Cost Curve (1-pass)](architecture_benchmark_cost_curve_2026-02-09-1pass.png)
 
+## OpenRouter Small Models (1-pass, max-turns=8, February 9, 2026)
+
+These runs use OpenRouter models with a smaller turn budget (`max-turns=8`) to limit cost.
+Pass counts are out of 3 tasks per sandbox:
+
+| Model | app-typed | app-drizzle | warehouse-dbt | Overall (out of 9) |
+|---|---:|---:|---:|---:|
+| moonshotai/kimi-k2.5 | 1/3 | 3/3 | 0/3 | 4 |
+| x-ai/grok-code-fast-1 | 1/3 | 3/3 | 0/3 | 4 |
+| qwen/qwen3-coder-next | 1/3 | 1/3 | 0/3 | 2 |
+| arcee-ai/trinity-large-preview:free | 0/3 | 0/3 | 0/3 | 0 |
+
+Token usage and cost summary (per run):
+
+| Model | Input tokens | Output tokens | Cost per run (USD) | Cost per pass (USD) |
+|---|---:|---:|---:|---:|
+| moonshotai/kimi-k2.5 | 70,568 | 23,580 | 0.0848 | 0.0212 |
+| x-ai/grok-code-fast-1 | 56,009 | 27,714 | 0.0528 | 0.0132 |
+| qwen/qwen3-coder-next | 63,188 | 7,914 | n/a | n/a |
+| arcee-ai/trinity-large-preview:free | 49,374 | 3,664 | 0.0000 | n/a |
+
+Notes:
+- Qwen pricing was not provided, so it is excluded from the cost curve.
+- Free models show zero cost; cost per pass is undefined when total passes are zero.
+
+Cost curve with Opus + OpenRouter models:
+![Architecture Benchmark Cost Curve (1-pass, all models)](architecture_benchmark_cost_curve_2026-02-09-1pass-all.png)
+
+Comparability note:
+- Anthropic runs used `max-turns=10`, OpenRouter runs used `max-turns=8`. Cost/performance comparisons across those groups are approximate.
+
 ![Architecture Benchmark Rubric Score (1-pass)](architecture_benchmark_rubric_model_2026-02-08-1pass.png)
 
 ## Linted Sonnet Runs (n=2, max-turns=10)

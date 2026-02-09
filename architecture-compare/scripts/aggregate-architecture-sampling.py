@@ -17,6 +17,11 @@ PRICE_USD_PER_M = {
     'claude-3-5-haiku-20241022': {'input': 0.07, 'output': 0.30},
     'claude-sonnet-4-20250514': {'input': 3.00, 'output': 15.00},
     'claude-opus-4-5': {'input': 5.00, 'output': 25.00},
+    'moonshotai/kimi-k2.5': {'input': 0.45, 'output': 2.25},
+    'minimax/minimax-m2.1': {'input': 0.27, 'output': 0.95},
+    'z-ai/glm-4.7': {'input': 0.40, 'output': 1.50},
+    'x-ai/grok-code-fast-1': {'input': 0.20, 'output': 1.50},
+    'arcee-ai/trinity-large-preview:free': {'input': 0.00, 'output': 0.00},
 }
 
 KEY_FILES = {
