@@ -1,0 +1,167 @@
+{
+  "metadata": {
+    "model": "x-ai/grok-code-fast-1",
+    "sandboxes": [
+      "warehouse-dbt-documented"
+    ],
+    "tasks": [
+      "active_user_arpu",
+      "org_churn_rate",
+      "avg_org_ltv"
+    ],
+    "maxTurns": 8,
+    "drift": "none",
+    "startedAt": "2026-02-09T13:19:30.303Z",
+    "endedAt": "2026-02-09T13:20:38.996Z",
+    "tokenUsage": {
+      "inputTokens": 22071,
+      "outputTokens": 7129,
+      "totalTokens": 29200
+    }
+  },
+  "results": [
+    {
+      "sandbox": "warehouse-dbt-documented",
+      "model": "x-ai/grok-code-fast-1",
+      "task": {
+        "id": "active_user_arpu",
+        "name": "Active User ARPU",
+        "description": "Calculate ARPU for active users.\nFormula: total paid invoice amount for active users / count of active users\nActive users: users with API usage in the last 30 days (relative to latest api_usage.created_at).\nReturn: number (rounded to nearest integer for TypeScript/Drizzle, raw for SQL)",
+        "dataFile": "invoices",
+        "dataFiles": [
+          "users",
+          "api_usage",
+          "invoices"
+        ],
+        "functionName": "calculateActiveUserARPU",
+        "sqlFile": "fct_active_user_arpu.sql",
+        "measureName": "active_user_arpu",
+        "signature": "calculateActiveUserARPU(users: User[], apiUsage: ApiUsage[], invoices: StripeInvoice[]): number",
+        "tolerance": 1
+      },
+      "pass": false,
+      "expected": 85365,
+      "turns": 8,
+      "error": "DuckDB error: {\"error\":\"Binder Error: No function matches the given name and argument types '-(VARCHAR, INTERVAL)'. You might need to add explicit type casts.\\n\\tCandidate functions:\\n\\t-(TINYINT) -> TINYINT\\n\\t-(TINYINT, TINYINT) -> TINYINT\\n\\t-(SMALLINT) -> SMALLINT\\n\\t-(SMALLINT, SMALLINT) -> SMALLINT\\n\\t-(INT",
+      "durationMs": 26247,
+      "toolUsage": {
+        "readFiles": [
+          "models/schema.yml",
+          "models/marts/fct_mrr.sql",
+          "models/staging/stg_app_api_usage.sql",
+          "models/staging/stg_stripe_invoices.sql"
+        ],
+        "listFiles": [
+          "models",
+          "models/marts"
+        ],
+        "writeFiles": [
+          "models/marts/fct_active_user_arpu.sql"
+        ]
+      },
+      "tokenUsage": {
+        "inputTokens": 11650,
+        "outputTokens": 2125,
+        "totalTokens": 13775
+      },
+      "rubric": {
+        "runtime": 0,
+        "output": 0,
+        "schema": 0,
+        "toolUsage": 0.375,
+        "total": 0.09375
+      }
+    },
+    {
+      "sandbox": "warehouse-dbt-documented",
+      "model": "x-ai/grok-code-fast-1",
+      "task": {
+        "id": "org_churn_rate",
+        "name": "Organization Churn Rate",
+        "description": "Calculate organization churn rate.\nChurned orgs: organizations with no active subscriptions AND no API usage in last 30 days (relative to latest api_usage.created_at).\nDenominator: organizations with at least one user.\nReturn: decimal with 4 decimal places (e.g., 0.2168)",
+        "dataFile": "subscriptions",
+        "dataFiles": [
+          "organizations",
+          "users",
+          "subscriptions",
+          "api_usage"
+        ],
+        "functionName": "calculateOrgChurnRate",
+        "sqlFile": "fct_org_churn_rate.sql",
+        "measureName": "org_churn_rate",
+        "signature": "calculateOrgChurnRate(organizations: Organization[], users: User[], subscriptions: StripeSubscription[], apiUsage: ApiUsage[]): number",
+        "tolerance": 0.001
+      },
+      "pass": false,
+      "expected": 0,
+      "turns": 4,
+      "error": "DuckDB error: {\"error\":\"Binder Error: No function matches the given name and argument types '-(VARCHAR, INTERVAL)'. You might need to add explicit type casts.\\n\\tCandidate functions:\\n\\t-(TINYINT) -> TINYINT\\n\\t-(TINYINT, TINYINT) -> TINYINT\\n\\t-(SMALLINT) -> SMALLINT\\n\\t-(SMALLINT, SMALLINT) -> SMALLINT\\n\\t-(INT",
+      "durationMs": 21686,
+      "toolUsage": {
+        "readFiles": [
+          "models/schema.yml"
+        ],
+        "listFiles": [
+          "models"
+        ],
+        "writeFiles": [
+          "models/marts/fct_org_churn_rate.sql"
+        ]
+      },
+      "tokenUsage": {
+        "inputTokens": 4491,
+        "outputTokens": 2342,
+        "totalTokens": 6833
+      },
+      "rubric": {
+        "runtime": 0,
+        "output": 0,
+        "schema": 0,
+        "toolUsage": 0.125,
+        "total": 0.03125
+      }
+    },
+    {
+      "sandbox": "warehouse-dbt-documented",
+      "model": "x-ai/grok-code-fast-1",
+      "task": {
+        "id": "avg_org_ltv",
+        "name": "Average Org LTV",
+        "description": "Calculate average organization lifetime value (LTV).\nFormula: average of (sum of paid invoice amount per organization), across orgs with at least one user.\nJoin users -> stripe_customer_id -> invoices.\nReturn: number (rounded to nearest integer for TypeScript/Drizzle, raw for SQL)",
+        "dataFile": "invoices",
+        "dataFiles": [
+          "organizations",
+          "users",
+          "invoices"
+        ],
+        "functionName": "calculateAvgOrgLTV",
+        "sqlFile": "fct_avg_org_ltv.sql",
+        "measureName": "avg_org_ltv",
+        "signature": "calculateAvgOrgLTV(organizations: Organization[], users: User[], invoices: StripeInvoice[]): number",
+        "tolerance": 1
+      },
+      "pass": false,
+      "expected": 811610,
+      "turns": 8,
+      "error": "Max turns exceeded",
+      "durationMs": 20032,
+      "toolUsage": {
+        "readFiles": [],
+        "listFiles": [],
+        "writeFiles": []
+      },
+      "tokenUsage": {
+        "inputTokens": 5930,
+        "outputTokens": 2662,
+        "totalTokens": 8592
+      },
+      "rubric": {
+        "runtime": 0,
+        "output": 0,
+        "schema": 0,
+        "toolUsage": 0,
+        "total": 0
+      }
+    }
+  ]
+}

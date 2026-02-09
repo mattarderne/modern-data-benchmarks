@@ -1,0 +1,764 @@
+{
+  "models": [
+    "arcee-ai/trinity-large-preview:free",
+    "claude-3-5-haiku-20241022",
+    "claude-sonnet-4-20250514",
+    "moonshotai/kimi-k2.5",
+    "qwen/qwen3-coder-next",
+    "x-ai/grok-code-fast-1",
+    "z-ai/glm-4.7"
+  ],
+  "sandboxes": [
+    "warehouse-dbt-documented"
+  ],
+  "tasks": [
+    "active_user_arpu",
+    "org_churn_rate",
+    "avg_org_ltv"
+  ],
+  "pricing_usd_per_m_tokens": {
+    "claude-3-5-haiku-20241022": {
+      "input": 0.07,
+      "output": 0.3
+    },
+    "claude-sonnet-4-20250514": {
+      "input": 3.0,
+      "output": 15.0
+    },
+    "claude-opus-4-5": {
+      "input": 5.0,
+      "output": 25.0
+    },
+    "moonshotai/kimi-k2.5": {
+      "input": 0.45,
+      "output": 2.25
+    },
+    "minimax/minimax-m2.1": {
+      "input": 0.27,
+      "output": 0.95
+    },
+    "z-ai/glm-4.7": {
+      "input": 0.4,
+      "output": 1.5
+    },
+    "x-ai/grok-code-fast-1": {
+      "input": 0.2,
+      "output": 1.5
+    },
+    "arcee-ai/trinity-large-preview:free": {
+      "input": 0.0,
+      "output": 0.0
+    }
+  },
+  "per_model": {
+    "arcee-ai/trinity-large-preview:free": {
+      "sandbox_task_pass_rate": {
+        "warehouse-dbt-documented": {
+          "active_user_arpu": {
+            "pass_rate": 0.0,
+            "passes": 0,
+            "runs": 2,
+            "ci95": [
+              0.0,
+              0.0
+            ]
+          },
+          "org_churn_rate": {
+            "pass_rate": 0.0,
+            "passes": 0,
+            "runs": 2,
+            "ci95": [
+              0.0,
+              0.0
+            ]
+          },
+          "avg_org_ltv": {
+            "pass_rate": 0.0,
+            "passes": 0,
+            "runs": 2,
+            "ci95": [
+              0.0,
+              0.0
+            ]
+          }
+        }
+      },
+      "sandbox_passes_mean": {
+        "warehouse-dbt-documented": 0.0
+      },
+      "sandbox_passes_ci": {
+        "warehouse-dbt-documented": [
+          0.0,
+          0.0
+        ]
+      },
+      "overall_passes_mean": 0.0,
+      "overall_passes_ci": [
+        0.0,
+        0.0
+      ],
+      "runs": [
+        0,
+        0
+      ],
+      "tool_usage": {
+        "warehouse-dbt-documented": {
+          "avg_reads_per_task": 0.0,
+          "avg_unique_reads_per_task": 0.0,
+          "key_file_read_rate": {
+            "models/schema.yml": 0.0,
+            "models/staging/stg_app_api_usage.sql": 0.0,
+            "models/staging/stg_app_users.sql": 0.0,
+            "models/staging/stg_app_organizations.sql": 0.0,
+            "models/staging/stg_stripe_invoices.sql": 0.0,
+            "models/staging/stg_stripe_subscriptions.sql": 0.0
+          }
+        }
+      },
+      "rubric": {
+        "warehouse-dbt-documented": {
+          "mean": 0.0,
+          "runs": 6
+        }
+      },
+      "cost": {
+        "per_run": [
+          0.0,
+          0.0
+        ],
+        "mean_usd": 0.0,
+        "mean_usd_per_pass": null,
+        "token_usage": [
+          {
+            "inputTokens": 13644,
+            "outputTokens": 304,
+            "totalTokens": 13948
+          },
+          {
+            "inputTokens": 13448,
+            "outputTokens": 276,
+            "totalTokens": 13724
+          }
+        ]
+      }
+    },
+    "claude-3-5-haiku-20241022": {
+      "sandbox_task_pass_rate": {
+        "warehouse-dbt-documented": {
+          "active_user_arpu": {
+            "pass_rate": 0.0,
+            "passes": 0,
+            "runs": 2,
+            "ci95": [
+              0.0,
+              0.0
+            ]
+          },
+          "org_churn_rate": {
+            "pass_rate": 0.0,
+            "passes": 0,
+            "runs": 2,
+            "ci95": [
+              0.0,
+              0.0
+            ]
+          },
+          "avg_org_ltv": {
+            "pass_rate": 0.0,
+            "passes": 0,
+            "runs": 2,
+            "ci95": [
+              0.0,
+              0.0
+            ]
+          }
+        }
+      },
+      "sandbox_passes_mean": {
+        "warehouse-dbt-documented": 0.0
+      },
+      "sandbox_passes_ci": {
+        "warehouse-dbt-documented": [
+          0.0,
+          0.0
+        ]
+      },
+      "overall_passes_mean": 0.0,
+      "overall_passes_ci": [
+        0.0,
+        0.0
+      ],
+      "runs": [
+        0,
+        0
+      ],
+      "tool_usage": {
+        "warehouse-dbt-documented": {
+          "avg_reads_per_task": 1.5,
+          "avg_unique_reads_per_task": 1.3333333333333333,
+          "key_file_read_rate": {
+            "models/schema.yml": 0.3333333333333333,
+            "models/staging/stg_app_api_usage.sql": 0.0,
+            "models/staging/stg_app_users.sql": 0.0,
+            "models/staging/stg_app_organizations.sql": 0.16666666666666666,
+            "models/staging/stg_stripe_invoices.sql": 0.3333333333333333,
+            "models/staging/stg_stripe_subscriptions.sql": 0.0
+          }
+        }
+      },
+      "rubric": {
+        "warehouse-dbt-documented": {
+          "mean": 0.041666666666666664,
+          "runs": 6
+        }
+      },
+      "cost": {
+        "per_run": [
+          0.00485116,
+          0.00416405
+        ],
+        "mean_usd": 0.004507605,
+        "mean_usd_per_pass": null,
+        "token_usage": [
+          {
+            "inputTokens": 37438,
+            "outputTokens": 7435,
+            "totalTokens": 44873
+          },
+          {
+            "inputTokens": 30305,
+            "outputTokens": 6809,
+            "totalTokens": 37114
+          }
+        ]
+      }
+    },
+    "claude-sonnet-4-20250514": {
+      "sandbox_task_pass_rate": {
+        "warehouse-dbt-documented": {
+          "active_user_arpu": {
+            "pass_rate": 0.0,
+            "passes": 0,
+            "runs": 2,
+            "ci95": [
+              0.0,
+              0.0
+            ]
+          },
+          "org_churn_rate": {
+            "pass_rate": 0.0,
+            "passes": 0,
+            "runs": 2,
+            "ci95": [
+              0.0,
+              0.0
+            ]
+          },
+          "avg_org_ltv": {
+            "pass_rate": 1.0,
+            "passes": 2,
+            "runs": 2,
+            "ci95": [
+              1.0,
+              1.0
+            ]
+          }
+        }
+      },
+      "sandbox_passes_mean": {
+        "warehouse-dbt-documented": 1.0
+      },
+      "sandbox_passes_ci": {
+        "warehouse-dbt-documented": [
+          0.0,
+          0.7105355092038887
+        ]
+      },
+      "overall_passes_mean": 1.0,
+      "overall_passes_ci": [
+        0.0,
+        0.7105355092038887
+      ],
+      "runs": [
+        1,
+        1
+      ],
+      "tool_usage": {
+        "warehouse-dbt-documented": {
+          "avg_reads_per_task": 1.6666666666666667,
+          "avg_unique_reads_per_task": 1.6666666666666667,
+          "key_file_read_rate": {
+            "models/schema.yml": 1.0,
+            "models/staging/stg_app_api_usage.sql": 0.0,
+            "models/staging/stg_app_users.sql": 0.3333333333333333,
+            "models/staging/stg_app_organizations.sql": 0.0,
+            "models/staging/stg_stripe_invoices.sql": 0.0,
+            "models/staging/stg_stripe_subscriptions.sql": 0.0
+          }
+        }
+      },
+      "rubric": {
+        "warehouse-dbt-documented": {
+          "mean": 0.2916666666666667,
+          "runs": 6
+        }
+      },
+      "cost": {
+        "per_run": [
+          0.176016,
+          0.195654
+        ],
+        "mean_usd": 0.185835,
+        "mean_usd_per_pass": 0.185835,
+        "token_usage": [
+          {
+            "inputTokens": 27262,
+            "outputTokens": 6282,
+            "totalTokens": 33544
+          },
+          {
+            "inputTokens": 32048,
+            "outputTokens": 6634,
+            "totalTokens": 38682
+          }
+        ]
+      }
+    },
+    "moonshotai/kimi-k2.5": {
+      "sandbox_task_pass_rate": {
+        "warehouse-dbt-documented": {
+          "active_user_arpu": {
+            "pass_rate": 0.0,
+            "passes": 0,
+            "runs": 2,
+            "ci95": [
+              0.0,
+              0.0
+            ]
+          },
+          "org_churn_rate": {
+            "pass_rate": 0.0,
+            "passes": 0,
+            "runs": 2,
+            "ci95": [
+              0.0,
+              0.0
+            ]
+          },
+          "avg_org_ltv": {
+            "pass_rate": 0.5,
+            "passes": 1,
+            "runs": 2,
+            "ci95": [
+              0.0,
+              1.0
+            ]
+          }
+        }
+      },
+      "sandbox_passes_mean": {
+        "warehouse-dbt-documented": 0.5
+      },
+      "sandbox_passes_ci": {
+        "warehouse-dbt-documented": [
+          0.0,
+          0.4648711701972571
+        ]
+      },
+      "overall_passes_mean": 0.5,
+      "overall_passes_ci": [
+        0.0,
+        0.4648711701972571
+      ],
+      "runs": [
+        0,
+        1
+      ],
+      "tool_usage": {
+        "warehouse-dbt-documented": {
+          "avg_reads_per_task": 3.1666666666666665,
+          "avg_unique_reads_per_task": 3.1666666666666665,
+          "key_file_read_rate": {
+            "models/schema.yml": 0.5,
+            "models/staging/stg_app_api_usage.sql": 0.3333333333333333,
+            "models/staging/stg_app_users.sql": 0.3333333333333333,
+            "models/staging/stg_app_organizations.sql": 0.3333333333333333,
+            "models/staging/stg_stripe_invoices.sql": 0.0,
+            "models/staging/stg_stripe_subscriptions.sql": 0.16666666666666666
+          }
+        }
+      },
+      "rubric": {
+        "warehouse-dbt-documented": {
+          "mean": 0.20833333333333334,
+          "runs": 6
+        }
+      },
+      "cost": {
+        "per_run": [
+          0.014093999999999999,
+          0.021056850000000002
+        ],
+        "mean_usd": 0.017575425,
+        "mean_usd_per_pass": 0.03515085,
+        "token_usage": [
+          {
+            "inputTokens": 19300,
+            "outputTokens": 2404,
+            "totalTokens": 21704
+          },
+          {
+            "inputTokens": 22768,
+            "outputTokens": 4805,
+            "totalTokens": 27573
+          }
+        ]
+      }
+    },
+    "qwen/qwen3-coder-next": {
+      "sandbox_task_pass_rate": {
+        "warehouse-dbt-documented": {
+          "active_user_arpu": {
+            "pass_rate": 0.0,
+            "passes": 0,
+            "runs": 2,
+            "ci95": [
+              0.0,
+              0.0
+            ]
+          },
+          "org_churn_rate": {
+            "pass_rate": 0.0,
+            "passes": 0,
+            "runs": 2,
+            "ci95": [
+              0.0,
+              0.0
+            ]
+          },
+          "avg_org_ltv": {
+            "pass_rate": 0.0,
+            "passes": 0,
+            "runs": 2,
+            "ci95": [
+              0.0,
+              0.0
+            ]
+          }
+        }
+      },
+      "sandbox_passes_mean": {
+        "warehouse-dbt-documented": 0.0
+      },
+      "sandbox_passes_ci": {
+        "warehouse-dbt-documented": [
+          0.0,
+          0.0
+        ]
+      },
+      "overall_passes_mean": 0.0,
+      "overall_passes_ci": [
+        0.0,
+        0.0
+      ],
+      "runs": [
+        0,
+        0
+      ],
+      "tool_usage": {
+        "warehouse-dbt-documented": {
+          "avg_reads_per_task": 0.0,
+          "avg_unique_reads_per_task": 0.0,
+          "key_file_read_rate": {
+            "models/schema.yml": 0.0,
+            "models/staging/stg_app_api_usage.sql": 0.0,
+            "models/staging/stg_app_users.sql": 0.0,
+            "models/staging/stg_app_organizations.sql": 0.0,
+            "models/staging/stg_stripe_invoices.sql": 0.0,
+            "models/staging/stg_stripe_subscriptions.sql": 0.0
+          }
+        }
+      },
+      "rubric": {
+        "warehouse-dbt-documented": {
+          "mean": 0.0,
+          "runs": 6
+        }
+      },
+      "cost": {
+        "per_run": [
+          null,
+          null
+        ],
+        "mean_usd": null,
+        "mean_usd_per_pass": null,
+        "token_usage": [
+          {
+            "inputTokens": 15970,
+            "outputTokens": 775,
+            "totalTokens": 16745
+          },
+          {
+            "inputTokens": 15672,
+            "outputTokens": 757,
+            "totalTokens": 16429
+          }
+        ]
+      }
+    },
+    "x-ai/grok-code-fast-1": {
+      "sandbox_task_pass_rate": {
+        "warehouse-dbt-documented": {
+          "active_user_arpu": {
+            "pass_rate": 0.0,
+            "passes": 0,
+            "runs": 2,
+            "ci95": [
+              0.0,
+              0.0
+            ]
+          },
+          "org_churn_rate": {
+            "pass_rate": 0.0,
+            "passes": 0,
+            "runs": 2,
+            "ci95": [
+              0.0,
+              0.0
+            ]
+          },
+          "avg_org_ltv": {
+            "pass_rate": 0.0,
+            "passes": 0,
+            "runs": 2,
+            "ci95": [
+              0.0,
+              0.0
+            ]
+          }
+        }
+      },
+      "sandbox_passes_mean": {
+        "warehouse-dbt-documented": 0.0
+      },
+      "sandbox_passes_ci": {
+        "warehouse-dbt-documented": [
+          0.0,
+          0.0
+        ]
+      },
+      "overall_passes_mean": 0.0,
+      "overall_passes_ci": [
+        0.0,
+        0.0
+      ],
+      "runs": [
+        0,
+        0
+      ],
+      "tool_usage": {
+        "warehouse-dbt-documented": {
+          "avg_reads_per_task": 1.5,
+          "avg_unique_reads_per_task": 1.5,
+          "key_file_read_rate": {
+            "models/schema.yml": 0.6666666666666666,
+            "models/staging/stg_app_api_usage.sql": 0.16666666666666666,
+            "models/staging/stg_app_users.sql": 0.0,
+            "models/staging/stg_app_organizations.sql": 0.0,
+            "models/staging/stg_stripe_invoices.sql": 0.16666666666666666,
+            "models/staging/stg_stripe_subscriptions.sql": 0.0
+          }
+        }
+      },
+      "rubric": {
+        "warehouse-dbt-documented": {
+          "mean": 0.041666666666666664,
+          "runs": 6
+        }
+      },
+      "cost": {
+        "per_run": [
+          0.0133273,
+          0.0151077
+        ],
+        "mean_usd": 0.014217500000000001,
+        "mean_usd_per_pass": null,
+        "token_usage": [
+          {
+            "inputTokens": 17699,
+            "outputTokens": 6525,
+            "totalTokens": 24224
+          },
+          {
+            "inputTokens": 22071,
+            "outputTokens": 7129,
+            "totalTokens": 29200
+          }
+        ]
+      }
+    },
+    "z-ai/glm-4.7": {
+      "sandbox_task_pass_rate": {
+        "warehouse-dbt-documented": {
+          "active_user_arpu": {
+            "pass_rate": 0.0,
+            "passes": 0,
+            "runs": 2,
+            "ci95": [
+              0.0,
+              0.0
+            ]
+          },
+          "org_churn_rate": {
+            "pass_rate": 0.0,
+            "passes": 0,
+            "runs": 2,
+            "ci95": [
+              0.0,
+              0.0
+            ]
+          },
+          "avg_org_ltv": {
+            "pass_rate": 1.0,
+            "passes": 2,
+            "runs": 2,
+            "ci95": [
+              1.0,
+              1.0
+            ]
+          }
+        }
+      },
+      "sandbox_passes_mean": {
+        "warehouse-dbt-documented": 1.0
+      },
+      "sandbox_passes_ci": {
+        "warehouse-dbt-documented": [
+          0.0,
+          0.7105355092038887
+        ]
+      },
+      "overall_passes_mean": 1.0,
+      "overall_passes_ci": [
+        0.0,
+        0.7105355092038887
+      ],
+      "runs": [
+        1,
+        1
+      ],
+      "tool_usage": {
+        "warehouse-dbt-documented": {
+          "avg_reads_per_task": 2.1666666666666665,
+          "avg_unique_reads_per_task": 2.1666666666666665,
+          "key_file_read_rate": {
+            "models/schema.yml": 1.0,
+            "models/staging/stg_app_api_usage.sql": 0.3333333333333333,
+            "models/staging/stg_app_users.sql": 0.3333333333333333,
+            "models/staging/stg_app_organizations.sql": 0.3333333333333333,
+            "models/staging/stg_stripe_invoices.sql": 0.0,
+            "models/staging/stg_stripe_subscriptions.sql": 0.0
+          }
+        }
+      },
+      "rubric": {
+        "warehouse-dbt-documented": {
+          "mean": 0.3177083333333333,
+          "runs": 6
+        }
+      },
+      "cost": {
+        "per_run": [
+          0.017826,
+          0.0163021
+        ],
+        "mean_usd": 0.01706405,
+        "mean_usd_per_pass": 0.01706405,
+        "token_usage": [
+          {
+            "inputTokens": 17895,
+            "outputTokens": 7112,
+            "totalTokens": 25007
+          },
+          {
+            "inputTokens": 15154,
+            "outputTokens": 6827,
+            "totalTokens": 21981
+          }
+        ]
+      }
+    }
+  },
+  "plateau": {
+    "arcee-ai/trinity-large-preview:free": {
+      "run_totals": [
+        0,
+        0
+      ],
+      "running_std": [
+        0.0,
+        0.0
+      ]
+    },
+    "claude-3-5-haiku-20241022": {
+      "run_totals": [
+        0,
+        0
+      ],
+      "running_std": [
+        0.0,
+        0.0
+      ]
+    },
+    "claude-sonnet-4-20250514": {
+      "run_totals": [
+        1,
+        1
+      ],
+      "running_std": [
+        0.0,
+        0.0
+      ]
+    },
+    "moonshotai/kimi-k2.5": {
+      "run_totals": [
+        0,
+        1
+      ],
+      "running_std": [
+        0.0,
+        0.5
+      ]
+    },
+    "qwen/qwen3-coder-next": {
+      "run_totals": [
+        0,
+        0
+      ],
+      "running_std": [
+        0.0,
+        0.0
+      ]
+    },
+    "x-ai/grok-code-fast-1": {
+      "run_totals": [
+        0,
+        0
+      ],
+      "running_std": [
+        0.0,
+        0.0
+      ]
+    },
+    "z-ai/glm-4.7": {
+      "run_totals": [
+        1,
+        1
+      ],
+      "running_std": [
+        0.0,
+        0.0
+      ]
+    }
+  }
+}
