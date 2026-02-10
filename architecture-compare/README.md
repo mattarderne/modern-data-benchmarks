@@ -40,11 +40,8 @@ Warehouse DBT documented sandbox (planned run)
 
 Detailed Mermaid diagrams comparing the warehouse-dbt and app-drizzle architectures:
 
-- **[blog/diagrams.md](../blog/diagrams.md)** — Full set of architecture diagrams
-  - 1a. Warehouse + dbt full pipeline (sources → raw → staging → marts → metric)
-  - 1b. App + Drizzle ORM full pipeline (sources → loader → unified schema → metric)
-  - 1c. Side-by-side agent navigation (what the agent does step-by-step)
-  - 2-8. Supporting diagrams: data flow, agent context, indirection problem, information density, layer count, join key discovery
+- **[Main report](artifacts/reports/architecture-benchmark-2026-02-07.md#architecture-diagrams)** — Warehouse + dbt, App + Drizzle ORM, side-by-side agent navigation, all three sandboxes
+- **[blog/diagrams.md](../blog/diagrams.md)** — Full set including supporting diagrams (agent context, indirection problem, information density, layer count, join key discovery)
 
 ## Cost Curve
 

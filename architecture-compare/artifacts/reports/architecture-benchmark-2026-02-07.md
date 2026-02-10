@@ -17,43 +17,161 @@ This experiment intentionally tests schema discovery and unification because the
 
 ## Architecture Diagrams
 
-**App + Stripe (TypeScript / app-typed)**
+### Warehouse + dbt
+
 ```mermaid
-flowchart LR
-  AppData[(App Tables JSON)]
-  StripeData[(Stripe Tables JSON)]
-  Loader[In-memory arrays]
-  AppData --> Loader
-  StripeData --> Loader
-  Loader --> TS[TypeScript Functions<br/>join users.stripe_customer_id to invoices.customer_id]
-  TS --> Metric[Metric Output]
+graph TB
+    subgraph sources["Data Sources"]
+        APP_DB["App Database<br/>(Postgres)<br/><em>users, orgs, usage,<br/>chat_sessions, features</em>"]
+        STRIPE_API["Stripe API<br/><em>customers, invoices,<br/>subscriptions, prices,<br/>products, payment_intents</em>"]
+    end
+
+    subgraph replication["Replication Layer"]
+        CDC["CDC / ETL<br/><em>Fivetran, Airbyte, etc.</em><br/>scheduled sync (15min+)"]
+    end
+
+    subgraph warehouse["Data Warehouse (DuckDB / Snowflake / BQ)"]
+        subgraph raw["Raw Layer — 11 tables"]
+            R_APP["raw_app_organizations<br/>raw_app_users<br/>raw_app_api_usage<br/>raw_app_chat_sessions<br/>raw_app_features"]
+            R_STRIPE["raw_stripe_customers<br/>raw_stripe_invoices<br/>raw_stripe_subscriptions<br/>raw_stripe_prices<br/>raw_stripe_products<br/>raw_stripe_payment_intents"]
+        end
+
+        subgraph staging["Staging Layer — 9 SQL models"]
+            S1["stg_app_users.sql<br/><code>id → user_id</code><br/><code>created_at → user_created_at</code>"]
+            S2["stg_app_organizations.sql<br/><code>id → organization_id</code><br/><code>created_at → org_created_at</code>"]
+            S3["stg_stripe_customers.sql<br/><code>id → customer_id</code>"]
+            S4["stg_stripe_invoices.sql<br/><code>id → invoice_id</code><br/><code>created_at → invoice_created_at</code>"]
+            S5["stg_stripe_subscriptions.sql<br/>stg_stripe_prices.sql<br/>stg_stripe_products.sql<br/>stg_app_api_usage.sql<br/>stg_internal_users.sql"]
+        end
+
+        subgraph marts["Marts Layer — SQL joins + aggregation"]
+            M1["dim_orgs.sql<br/><em>SELECT FROM stg_app_organizations</em>"]
+            M2["fct_org_revenue.sql<br/><em>JOIN stg_app_users<br/>+ stg_stripe_invoices<br/>+ stg_stripe_customers</em>"]
+        end
+
+        DOCS["schema.yml<br/><em>column docs, descriptions</em>"]
+    end
+
+    subgraph agent_task["Agent writes metric"]
+        METRIC["models/marts/metric_arpu.sql<br/><em>Must: discover join keys across files,<br/>handle column renames,<br/>CAST VARCHAR timestamps,<br/>write valid SQL</em>"]
+    end
+
+    APP_DB --> CDC
+    STRIPE_API --> CDC
+    CDC -->|"lagging copy<br/>no types"| raw
+    R_APP --> staging
+    R_STRIPE --> staging
+    staging --> marts
+    marts --> METRIC
+    DOCS -.->|"optional<br/>context"| METRIC
+
+    style replication fill:#fff3cd,stroke:#856404
+    style agent_task fill:#d4edda,stroke:#155724
 ```
 
-**App + Stripe (Drizzle / app-drizzle)**
+### App + Drizzle ORM
+
 ```mermaid
-flowchart LR
-  AppData[(App Tables JSON)]
-  StripeData[(Stripe Tables JSON)]
-  LoadDB[Load into SQLite]
-  AppData --> LoadDB
-  StripeData --> LoadDB
-  DB[(Unified SQLite DB)]
-  LoadDB --> DB
-  DB --> Drizzle[Drizzle ORM Queries]
-  Drizzle --> Metric[Metric Output]
+graph TB
+    subgraph sources["Data Sources"]
+        APP_DB["App Database<br/>(Postgres)<br/><em>users, orgs, usage,<br/>chat_sessions, features</em>"]
+        STRIPE_API["Stripe API<br/><em>customers, invoices,<br/>subscriptions, prices,<br/>products, payment_intents</em>"]
+    end
+
+    subgraph loader["Data Loader (db.ts)"]
+        LOAD["loadData()<br/><em>JSON → SQLite INSERT<br/>metadata flattening<br/>bool → int conversion<br/>deduplication</em>"]
+    end
+
+    subgraph app["Unified App Context (SQLite + Drizzle)"]
+        subgraph schema["schema.ts — all 11 tables, one file"]
+            T_APP["organizations: { id: text, name: text, ... }<br/>users: { id: text, organizationId: text,<br/>  stripeCustomerId: text, email: text, ... }<br/>apiUsage: { id: text, userId: text, tokens: integer, ... }<br/>chatSessions: { ... }<br/>features: { ... }"]
+            T_STRIPE["customers: { id: text, name: text, email: text, ... }<br/>invoices: { id: text, customerId: text,<br/>  amountPaid: integer, status: text, ... }<br/>subscriptions: { id: text, customerId: text,<br/>  priceId: text, status: text, ... }<br/>prices: { id: text, productId: text,<br/>  unitAmount: integer, ... }<br/>products: { ... }<br/>paymentIntents: { ... }"]
+        end
+
+        QUERIES["queries.ts<br/><em>existing examples:<br/>calculateTotalRevenue()</em>"]
+        DB["db.ts<br/><em>SQLite connection<br/>+ Drizzle instance</em>"]
+    end
+
+    subgraph agent_task["Agent writes metric"]
+        METRIC["Append to src/queries.ts<br/><pre>export async function calculateARPU() {<br/>  const result = await db.select({<br/>    arpu: avg(invoices.amountPaid)<br/>  }).from(invoices)<br/>  .innerJoin(users,<br/>    eq(users.stripeCustomerId,<br/>       invoices.customerId))<br/>  ...<br/>  return result<br/>}</pre><br/><em>Types checked. Join keys<br/>visible in same file as schema.</em>"]
+    end
+
+    APP_DB --> LOAD
+    STRIPE_API --> LOAD
+    LOAD -->|"direct load<br/>typed columns"| schema
+    schema --> METRIC
+    QUERIES -.->|"pattern<br/>examples"| METRIC
+    DB -.->|"connection"| METRIC
+
+    style loader fill:#fff3cd,stroke:#856404
+    style agent_task fill:#d4edda,stroke:#155724
 ```
 
-**Warehouse + DBT (warehouse-dbt)**
+### Side-by-side: what the agent navigates
+
 ```mermaid
-flowchart LR
-  AppDB[(App DB)] --> Rep[Replication]
-  Stripe[(Stripe)] --> Rep
-  Rep --> Raw[(DuckDB Raw Tables)]
-  subgraph DuckDB["DuckDB execution (DBT-style SQL, no dbt compile)"]
-    Raw --> Stg[Staging SQL]
-    Stg --> Marts[Marts SQL]
-  end
-  Marts --> Metric[Metric Output]
+graph LR
+    subgraph dbt["warehouse-dbt"]
+        direction TB
+        D_LIST["list_files<br/>→ 12+ SQL files"]
+        D_READ["read 4-5 staging files<br/><em>one table per file<br/>column renames only<br/>no type information</em>"]
+        D_GUESS["infer join keys<br/><em>stripe_customer_id in stg_app_users<br/>customer_id in stg_stripe_invoices<br/>found in different files</em>"]
+        D_CAST["handle type casting<br/><em>VARCHAR → TIMESTAMP<br/>string → number</em>"]
+        D_WRITE["write SQL file<br/><em>correct filename required<br/>correct directory required</em>"]
+        D_LIST --> D_READ --> D_GUESS --> D_CAST --> D_WRITE
+    end
+
+    subgraph orm["app-drizzle"]
+        direction TB
+        O_LIST["list_files<br/>→ 3 files"]
+        O_READ["read schema.ts<br/><em>all 11 tables<br/>typed columns<br/>in one file</em>"]
+        O_JOIN["write join<br/><em>eq(users.stripeCustomerId,<br/>   invoices.customerId)<br/>types guide you</em>"]
+        O_WRITE["append function<br/><em>to existing queries.ts</em>"]
+        O_LIST --> O_READ --> O_JOIN --> O_WRITE
+    end
+
+    style dbt fill:#fff5f5,stroke:#c53030
+    style orm fill:#f0fff4,stroke:#276749
+```
+
+### All three sandboxes (high level)
+
+```mermaid
+graph TB
+    subgraph sources["Source Data"]
+        APP_DB["App DB<br/><em>users, orgs, usage</em>"]
+        STRIPE["Stripe API<br/><em>customers, invoices,<br/>subscriptions</em>"]
+    end
+
+    subgraph dbt["Warehouse + dbt"]
+        direction TB
+        RAW["Raw Tables<br/><code>raw_app_users</code><br/><code>raw_stripe_invoices</code><br/><code>raw_stripe_customers</code><br/>...11 tables"]
+        STG["Staging Views<br/><code>stg_app_users</code><br/><code>stg_stripe_invoices</code><br/>Column renames, casts"]
+        MARTS["Mart Models<br/><code>fct_org_revenue</code><br/><code>dim_orgs</code><br/>Joins + aggregation"]
+        METRIC_SQL["Metric SQL<br/><em>agent writes this</em>"]
+        RAW --> STG --> MARTS --> METRIC_SQL
+    end
+
+    subgraph orm["App + Drizzle ORM"]
+        direction TB
+        SQLITE["SQLite DB<br/>All tables in one schema<br/><em>typed via Drizzle</em>"]
+        QUERY["Query Function<br/><code>async function calculateARPU()</code><br/><em>agent writes this</em>"]
+        SQLITE --> QUERY
+    end
+
+    subgraph typed["App + TypeScript"]
+        direction TB
+        ARRAYS["Typed Arrays<br/><code>User[]</code>, <code>StripeInvoice[]</code><br/><em>no database</em>"]
+        FN["Pure Function<br/><code>function calculateARPU(<br/>  users, invoices<br/>): number</code><br/><em>agent writes this</em>"]
+        ARRAYS --> FN
+    end
+
+    APP_DB --> RAW
+    STRIPE --> RAW
+    APP_DB --> SQLITE
+    STRIPE --> SQLITE
+    APP_DB --> ARRAYS
+    STRIPE --> ARRAYS
 ```
 
 **Tasks (all require app ↔ Stripe joins)**
