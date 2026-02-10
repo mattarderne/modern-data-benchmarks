@@ -36,6 +36,16 @@ Linting experiment (focused analysis)
 Warehouse DBT documented sandbox (planned run)
 - Report: [artifacts/reports/warehouse-dbt-documented-experiment-2026-02-09.md](artifacts/reports/warehouse-dbt-documented-experiment-2026-02-09.md)
 
+## Architecture Diagrams
+
+Detailed Mermaid diagrams comparing the warehouse-dbt and app-drizzle architectures:
+
+- **[blog/diagrams.md](../blog/diagrams.md)** — Full set of architecture diagrams
+  - 1a. Warehouse + dbt full pipeline (sources → raw → staging → marts → metric)
+  - 1b. App + Drizzle ORM full pipeline (sources → loader → unified schema → metric)
+  - 1c. Side-by-side agent navigation (what the agent does step-by-step)
+  - 2-8. Supporting diagrams: data flow, agent context, indirection problem, information density, layer count, join key discovery
+
 ## Cost Curve
 
 **Pareto Performance / Cost Curve**
