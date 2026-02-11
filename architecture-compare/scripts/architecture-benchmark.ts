@@ -235,7 +235,7 @@ Return: number (rounded to nearest integer for TypeScript/Drizzle, raw for SQL)`
 // SANDBOX MANAGEMENT
 // ============================================
 
-const AVAILABLE_SANDBOXES = ['app-typed', 'app-drizzle', 'warehouse-dbt', 'warehouse-dbt-documented', 'warehouse-dbt-cast'];
+const AVAILABLE_SANDBOXES = ['app-typed', 'app-drizzle', 'warehouse-dbt', 'warehouse-dbt-documented', 'warehouse-dbt-cast', 'warehouse-dbt-fair'];
 
 async function loadSandboxConfig(sandboxId: string): Promise<SandboxConfig> {
   const configPath = path.join(SANDBOXES_DIR, sandboxId, 'sandbox.config.ts');

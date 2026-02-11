@@ -58,6 +58,14 @@ KEY_FILES = {
         'models/staging/stg_stripe_invoices.sql',
         'models/staging/stg_stripe_subscriptions.sql',
     ],
+    'warehouse-dbt-fair': [
+        'models/schema.yml',
+        'models/staging/stg_app_api_usage.sql',
+        'models/staging/stg_app_users.sql',
+        'models/staging/stg_app_organizations.sql',
+        'models/staging/stg_stripe_invoices.sql',
+        'models/staging/stg_stripe_subscriptions.sql',
+    ],
 }
 
 
@@ -504,15 +512,22 @@ def main():
         return
 
     def collect_dimensions(runs):
-        first_meta = runs[0].get('metadata', {})
         models = [payload['metadata']['model'] for payload in runs]
         models_unique = list(dict.fromkeys(models))
 
-        sandboxes = first_meta.get('sandboxes')
+        sandboxes = []
+        for payload in runs:
+            for sandbox in payload.get('metadata', {}).get('sandboxes', []):
+                if sandbox not in sandboxes:
+                    sandboxes.append(sandbox)
         if not sandboxes:
             sandboxes = sorted({r['sandbox'] for payload in runs for r in payload.get('results', [])})
 
-        tasks = first_meta.get('tasks')
+        tasks = []
+        for payload in runs:
+            for task in payload.get('metadata', {}).get('tasks', []):
+                if task not in tasks:
+                    tasks.append(task)
         if not tasks:
             tasks = sorted({r['task']['id'] for payload in runs for r in payload.get('results', [])})
 

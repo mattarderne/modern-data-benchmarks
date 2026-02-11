@@ -1,0 +1,93 @@
+version: 2
+
+models:
+  - name: stg_app_users
+    description: "App users staged from raw_app_users"
+    columns:
+      - name: user_id
+        description: "Primary key for users"
+      - name: organization_id
+        description: "FK to stg_app_organizations.organization_id"
+      - name: stripe_customer_id
+        description: "FK to stg_stripe_customers.customer_id and stg_stripe_invoices.customer_id"
+      - name: email
+      - name: role
+      - name: user_created_at
+      - name: last_login_at
+
+  - name: stg_app_organizations
+    description: "Organizations staged from raw_app_organizations"
+    columns:
+      - name: organization_id
+        description: "Primary key for organizations"
+      - name: name
+      - name: org_created_at
+
+  - name: stg_app_api_usage
+    description: "API usage staged from raw_app_api_usage"
+    columns:
+      - name: usage_id
+        description: "Primary key for usage events"
+      - name: user_id
+        description: "FK to stg_app_users.user_id"
+      - name: model
+      - name: tokens
+      - name: latency_ms
+      - name: usage_created_at
+        description: "Timestamp of API usage event; CAST to TIMESTAMP before date math (e.g., CAST(usage_created_at AS TIMESTAMP))"
+
+  - name: stg_stripe_customers
+    description: "Stripe customers staged from raw_stripe_customers"
+    columns:
+      - name: customer_id
+        description: "Primary key; join to users via stg_app_users.stripe_customer_id"
+      - name: name
+      - name: email
+      - name: metadata_source
+      - name: metadata_segment
+      - name: customer_created_at
+
+  - name: stg_stripe_invoices
+    description: "Stripe invoices staged from raw_stripe_invoices"
+    columns:
+      - name: invoice_id
+        description: "Primary key for invoices"
+      - name: customer_id
+        description: "Join to users via stg_app_users.stripe_customer_id"
+      - name: subscription_id
+        description: "FK to stg_stripe_subscriptions.subscription_id"
+      - name: amount_due
+      - name: amount_paid
+        description: "Revenue metric uses amount_paid when status = 'paid'"
+      - name: status
+        description: "Use status = 'paid' for revenue metrics"
+      - name: invoice_created_at
+
+  - name: stg_stripe_subscriptions
+    description: "Stripe subscriptions staged from raw_stripe_subscriptions"
+    columns:
+      - name: subscription_id
+        description: "Primary key for subscriptions"
+      - name: customer_id
+        description: "Join to users via stg_app_users.stripe_customer_id"
+      - name: price_id
+      - name: status
+        description: "Use status = 'active' for active subscription filtering"
+      - name: current_period_start
+      - name: current_period_end
+      - name: cancel_at_period_end
+      - name: subscription_created_at
+
+  - name: dim_orgs
+    description: "Organizations dimension built from stg_app_organizations"
+    columns:
+      - name: organization_id
+      - name: name
+      - name: org_created_at
+
+  - name: fct_org_revenue
+    description: "Org revenue fact table"
+    columns:
+      - name: organization_id
+      - name: total_amount_paid
+        description: "Sum of paid invoice amount_paid per org"

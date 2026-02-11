@@ -1,0 +1,168 @@
+{
+  "metadata": {
+    "model": "qwen/qwen3-coder-next",
+    "sandboxes": [
+      "app-drizzle"
+    ],
+    "tasks": [
+      "active_user_arpu",
+      "org_churn_rate",
+      "avg_org_ltv"
+    ],
+    "maxTurns": 10,
+    "drift": "none",
+    "startedAt": "2026-02-11T10:01:16.958Z",
+    "endedAt": "2026-02-11T10:02:30.153Z",
+    "tokenUsage": {
+      "inputTokens": 23832,
+      "outputTokens": 4061,
+      "totalTokens": 27893
+    }
+  },
+  "results": [
+    {
+      "sandbox": "app-drizzle",
+      "model": "qwen/qwen3-coder-next",
+      "task": {
+        "id": "active_user_arpu",
+        "name": "Active User ARPU",
+        "description": "Calculate ARPU for active users.\nFormula: total paid invoice amount for active users / count of active users\nActive users: users with API usage in the last 30 days (relative to latest api_usage.created_at).\nReturn: number (rounded to nearest integer for TypeScript/Drizzle, raw for SQL)",
+        "dataFile": "invoices",
+        "dataFiles": [
+          "users",
+          "api_usage",
+          "invoices"
+        ],
+        "functionName": "calculateActiveUserARPU",
+        "sqlFile": "fct_active_user_arpu.sql",
+        "measureName": "active_user_arpu",
+        "signature": "calculateActiveUserARPU(users: User[], apiUsage: ApiUsage[], invoices: StripeInvoice[]): number",
+        "tolerance": 1
+      },
+      "pass": false,
+      "expected": 85365,
+      "turns": 4,
+      "error": "Drizzle error: file:///Users/mattbook-air/claude-stuff/ai-research/data-architecture-comparison/architecture-compare/sandbox-runs/app-drizzle-qwen-qwen3-coder-next-1770804076977/src/queries.ts:85\n        users.id.in(activeUserIds)\n                   ^\n\nTypeError: users.id.in is not a function\n    at calculateActiv",
+      "durationMs": 19564,
+      "toolUsage": {
+        "readFiles": [
+          "src/schema.ts",
+          "src/queries.ts"
+        ],
+        "listFiles": [],
+        "writeFiles": [
+          "src/queries.ts"
+        ]
+      },
+      "tokenUsage": {
+        "inputTokens": 5981,
+        "outputTokens": 981,
+        "totalTokens": 6962
+      },
+      "rubric": {
+        "runtime": 0,
+        "output": 0,
+        "schema": 0,
+        "toolUsage": 0.6666666666666666,
+        "total": 0.16666666666666666
+      }
+    },
+    {
+      "sandbox": "app-drizzle",
+      "model": "qwen/qwen3-coder-next",
+      "task": {
+        "id": "org_churn_rate",
+        "name": "Organization Churn Rate",
+        "description": "Calculate organization churn rate.\nChurned orgs: organizations with no active subscriptions AND no API usage in last 30 days (relative to latest api_usage.created_at).\nDenominator: organizations with at least one user.\nReturn: decimal with 4 decimal places (e.g., 0.2168)",
+        "dataFile": "subscriptions",
+        "dataFiles": [
+          "organizations",
+          "users",
+          "subscriptions",
+          "api_usage"
+        ],
+        "functionName": "calculateOrgChurnRate",
+        "sqlFile": "fct_org_churn_rate.sql",
+        "measureName": "org_churn_rate",
+        "signature": "calculateOrgChurnRate(organizations: Organization[], users: User[], subscriptions: StripeSubscription[], apiUsage: ApiUsage[]): number",
+        "tolerance": 0.001
+      },
+      "pass": false,
+      "expected": 0,
+      "turns": 4,
+      "error": "Drizzle error: \n/Users/mattbook-air/claude-stuff/ai-research/node_modules/better-sqlite3/lib/methods/wrappers.js:5\n\treturn this[cppdb].prepare(sql, this, false);\n\t                   ^\nSqliteError: misuse of aggregate: MAX()\n    at Database.prepare (/Users/mattbook-air/claude-stuff/ai-research/node_modules/better-s",
+      "durationMs": 25253,
+      "toolUsage": {
+        "readFiles": [
+          "src/schema.ts",
+          "src/queries.ts"
+        ],
+        "listFiles": [],
+        "writeFiles": [
+          "src/queries.ts"
+        ]
+      },
+      "tokenUsage": {
+        "inputTokens": 6499,
+        "outputTokens": 1473,
+        "totalTokens": 7972
+      },
+      "rubric": {
+        "runtime": 0,
+        "output": 0,
+        "schema": 0,
+        "toolUsage": 0.6666666666666666,
+        "total": 0.16666666666666666
+      }
+    },
+    {
+      "sandbox": "app-drizzle",
+      "model": "qwen/qwen3-coder-next",
+      "task": {
+        "id": "avg_org_ltv",
+        "name": "Average Org LTV",
+        "description": "Calculate average organization lifetime value (LTV).\nFormula: average of (sum of paid invoice amount per organization), across orgs with at least one user.\nJoin users -> stripe_customer_id -> invoices.\nReturn: number (rounded to nearest integer for TypeScript/Drizzle, raw for SQL)",
+        "dataFile": "invoices",
+        "dataFiles": [
+          "organizations",
+          "users",
+          "invoices"
+        ],
+        "functionName": "calculateAvgOrgLTV",
+        "sqlFile": "fct_avg_org_ltv.sql",
+        "measureName": "avg_org_ltv",
+        "signature": "calculateAvgOrgLTV(organizations: Organization[], users: User[], invoices: StripeInvoice[]): number",
+        "tolerance": 1
+      },
+      "pass": false,
+      "expected": 811610,
+      "turns": 6,
+      "error": "Function returned non-number: {\"result\":null}\n",
+      "durationMs": 27691,
+      "toolUsage": {
+        "readFiles": [
+          "src/schema.ts",
+          "src/queries.ts"
+        ],
+        "listFiles": [],
+        "writeFiles": [
+          "src/queries.ts",
+          "src/queries.ts",
+          "src/queries.ts"
+        ]
+      },
+      "tokenUsage": {
+        "inputTokens": 11352,
+        "outputTokens": 1607,
+        "totalTokens": 12959
+      },
+      "rubric": {
+        "runtime": 0,
+        "output": 0,
+        "schema": 0,
+        "toolUsage": 0.6666666666666666,
+        "total": 0.16666666666666666
+      }
+    }
+  ]
+}

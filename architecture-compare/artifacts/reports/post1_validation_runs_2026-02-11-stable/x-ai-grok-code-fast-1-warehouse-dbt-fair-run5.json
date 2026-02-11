@@ -1,0 +1,172 @@
+{
+  "metadata": {
+    "model": "x-ai/grok-code-fast-1",
+    "sandboxes": [
+      "warehouse-dbt-fair"
+    ],
+    "tasks": [
+      "active_user_arpu",
+      "org_churn_rate",
+      "avg_org_ltv"
+    ],
+    "maxTurns": 10,
+    "drift": "none",
+    "startedAt": "2026-02-11T09:53:57.917Z",
+    "endedAt": "2026-02-11T09:56:41.040Z",
+    "tokenUsage": {
+      "inputTokens": 37641,
+      "outputTokens": 12045,
+      "totalTokens": 49686
+    }
+  },
+  "results": [
+    {
+      "sandbox": "warehouse-dbt-fair",
+      "model": "x-ai/grok-code-fast-1",
+      "task": {
+        "id": "active_user_arpu",
+        "name": "Active User ARPU",
+        "description": "Calculate ARPU for active users.\nFormula: total paid invoice amount for active users / count of active users\nActive users: users with API usage in the last 30 days (relative to latest api_usage.created_at).\nReturn: number (rounded to nearest integer for TypeScript/Drizzle, raw for SQL)",
+        "dataFile": "invoices",
+        "dataFiles": [
+          "users",
+          "api_usage",
+          "invoices"
+        ],
+        "functionName": "calculateActiveUserARPU",
+        "sqlFile": "fct_active_user_arpu.sql",
+        "measureName": "active_user_arpu",
+        "signature": "calculateActiveUserARPU(users: User[], apiUsage: ApiUsage[], invoices: StripeInvoice[]): number",
+        "tolerance": 1
+      },
+      "pass": false,
+      "expected": 85365,
+      "actual": 147443,
+      "turns": 5,
+      "durationMs": 38545,
+      "toolUsage": {
+        "readFiles": [
+          "models/schema.yml",
+          "models/marts/fct_org_revenue.sql"
+        ],
+        "listFiles": [
+          "models"
+        ],
+        "writeFiles": [
+          "models/marts/fct_active_user_arpu.sql"
+        ]
+      },
+      "tokenUsage": {
+        "inputTokens": 7489,
+        "outputTokens": 2259,
+        "totalTokens": 9748
+      },
+      "rubric": {
+        "runtime": 1,
+        "output": 0,
+        "schema": 1,
+        "toolUsage": 0.25,
+        "total": 0.5625
+      }
+    },
+    {
+      "sandbox": "warehouse-dbt-fair",
+      "model": "x-ai/grok-code-fast-1",
+      "task": {
+        "id": "org_churn_rate",
+        "name": "Organization Churn Rate",
+        "description": "Calculate organization churn rate.\nChurned orgs: organizations with no active subscriptions AND no API usage in last 30 days (relative to latest api_usage.created_at).\nDenominator: organizations with at least one user.\nReturn: decimal with 4 decimal places (e.g., 0.2168)",
+        "dataFile": "subscriptions",
+        "dataFiles": [
+          "organizations",
+          "users",
+          "subscriptions",
+          "api_usage"
+        ],
+        "functionName": "calculateOrgChurnRate",
+        "sqlFile": "fct_org_churn_rate.sql",
+        "measureName": "org_churn_rate",
+        "signature": "calculateOrgChurnRate(organizations: Organization[], users: User[], subscriptions: StripeSubscription[], apiUsage: ApiUsage[]): number",
+        "tolerance": 0.001
+      },
+      "pass": true,
+      "expected": 0,
+      "actual": 0,
+      "turns": 6,
+      "durationMs": 47715,
+      "toolUsage": {
+        "readFiles": [
+          "models/schema.yml",
+          "models/marts/fct_org_revenue.sql",
+          "models/staging/stg_app_api_usage.sql",
+          "models/staging/stg_app_organizations.sql"
+        ],
+        "listFiles": [],
+        "writeFiles": [
+          "models/marts/fct_org_churn_rate.sql"
+        ]
+      },
+      "tokenUsage": {
+        "inputTokens": 10309,
+        "outputTokens": 2987,
+        "totalTokens": 13296
+      },
+      "rubric": {
+        "runtime": 1,
+        "output": 1,
+        "schema": 1,
+        "toolUsage": 0.5,
+        "total": 0.875
+      }
+    },
+    {
+      "sandbox": "warehouse-dbt-fair",
+      "model": "x-ai/grok-code-fast-1",
+      "task": {
+        "id": "avg_org_ltv",
+        "name": "Average Org LTV",
+        "description": "Calculate average organization lifetime value (LTV).\nFormula: average of (sum of paid invoice amount per organization), across orgs with at least one user.\nJoin users -> stripe_customer_id -> invoices.\nReturn: number (rounded to nearest integer for TypeScript/Drizzle, raw for SQL)",
+        "dataFile": "invoices",
+        "dataFiles": [
+          "organizations",
+          "users",
+          "invoices"
+        ],
+        "functionName": "calculateAvgOrgLTV",
+        "sqlFile": "fct_avg_org_ltv.sql",
+        "measureName": "avg_org_ltv",
+        "signature": "calculateAvgOrgLTV(organizations: Organization[], users: User[], invoices: StripeInvoice[]): number",
+        "tolerance": 1
+      },
+      "pass": true,
+      "expected": 811610,
+      "actual": 811610,
+      "turns": 6,
+      "durationMs": 76174,
+      "toolUsage": {
+        "readFiles": [
+          "models/schema.yml"
+        ],
+        "listFiles": [
+          "models"
+        ],
+        "writeFiles": [
+          "models/marts/fct_avg_org_ltv.sql",
+          "models/marts/fct_avg_org_ltv.sql"
+        ]
+      },
+      "tokenUsage": {
+        "inputTokens": 19843,
+        "outputTokens": 6799,
+        "totalTokens": 26642
+      },
+      "rubric": {
+        "runtime": 1,
+        "output": 1,
+        "schema": 1,
+        "toolUsage": 0.125,
+        "total": 0.78125
+      }
+    }
+  ]
+}

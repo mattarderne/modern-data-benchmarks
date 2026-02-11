@@ -16,6 +16,9 @@ See [artifacts/reports/linting-experiment-2026-02-08.md](artifacts/reports/linti
 4. Warehouse DBT Documented Sandbox Experiment
 See [artifacts/reports/warehouse-dbt-documented-experiment-2026-02-09.md](artifacts/reports/warehouse-dbt-documented-experiment-2026-02-09.md).
 
+5. Post-1 Validation: Fair DBT vs App Drizzle (stable OpenRouter set)
+See [artifacts/reports/post1-validation-fair-dbt-2026-02-11.md](artifacts/reports/post1-validation-fair-dbt-2026-02-11.md).
+
 ## Report Index
 
 Baseline (legacy modular benchmark)
@@ -35,6 +38,11 @@ Linting experiment (focused analysis)
 
 Warehouse DBT documented sandbox (planned run)
 - Report: [artifacts/reports/warehouse-dbt-documented-experiment-2026-02-09.md](artifacts/reports/warehouse-dbt-documented-experiment-2026-02-09.md)
+
+Post-1 validation (fair DBT comparator)
+- Report: [artifacts/reports/post1-validation-fair-dbt-2026-02-11.md](artifacts/reports/post1-validation-fair-dbt-2026-02-11.md)
+- Stable runs: `artifacts/reports/post1_validation_runs_2026-02-11-stable/`
+- Stable summary: `artifacts/reports/architecture_sampling_summary_post1-fair-2026-02-11-stable.json`
 
 ## Architecture Diagrams
 

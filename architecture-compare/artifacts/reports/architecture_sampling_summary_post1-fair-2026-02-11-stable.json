@@ -1,0 +1,714 @@
+{
+  "models": [
+    "minimax/minimax-m2.1",
+    "qwen/qwen3-coder-next",
+    "x-ai/grok-code-fast-1"
+  ],
+  "sandboxes": [
+    "app-drizzle",
+    "warehouse-dbt-fair"
+  ],
+  "tasks": [
+    "active_user_arpu",
+    "org_churn_rate",
+    "avg_org_ltv"
+  ],
+  "pricing_usd_per_m_tokens": {
+    "claude-3-5-haiku-20241022": {
+      "input": 0.07,
+      "output": 0.3
+    },
+    "claude-sonnet-4-20250514": {
+      "input": 3.0,
+      "output": 15.0
+    },
+    "claude-opus-4-5": {
+      "input": 5.0,
+      "output": 25.0
+    },
+    "moonshotai/kimi-k2.5": {
+      "input": 0.45,
+      "output": 2.25
+    },
+    "minimax/minimax-m2.1": {
+      "input": 0.27,
+      "output": 0.95
+    },
+    "z-ai/glm-4.7": {
+      "input": 0.4,
+      "output": 1.5
+    },
+    "x-ai/grok-code-fast-1": {
+      "input": 0.2,
+      "output": 1.5
+    },
+    "arcee-ai/trinity-large-preview:free": {
+      "input": 0.0,
+      "output": 0.0
+    }
+  },
+  "per_model": {
+    "minimax/minimax-m2.1": {
+      "sandbox_task_pass_rate": {
+        "app-drizzle": {
+          "active_user_arpu": {
+            "pass_rate": 0.0,
+            "passes": 0,
+            "runs": 5,
+            "ci95": [
+              0.0,
+              0.0
+            ]
+          },
+          "org_churn_rate": {
+            "pass_rate": 0.0,
+            "passes": 0,
+            "runs": 5,
+            "ci95": [
+              0.0,
+              0.0
+            ]
+          },
+          "avg_org_ltv": {
+            "pass_rate": 0.0,
+            "passes": 0,
+            "runs": 5,
+            "ci95": [
+              0.0,
+              0.0
+            ]
+          }
+        },
+        "warehouse-dbt-fair": {
+          "active_user_arpu": {
+            "pass_rate": 0.0,
+            "passes": 0,
+            "runs": 5,
+            "ci95": [
+              0.0,
+              0.0
+            ]
+          },
+          "org_churn_rate": {
+            "pass_rate": 0.0,
+            "passes": 0,
+            "runs": 5,
+            "ci95": [
+              0.0,
+              0.0
+            ]
+          },
+          "avg_org_ltv": {
+            "pass_rate": 0.0,
+            "passes": 0,
+            "runs": 5,
+            "ci95": [
+              0.0,
+              0.0
+            ]
+          }
+        }
+      },
+      "sandbox_passes_mean": {
+        "app-drizzle": 0.0,
+        "warehouse-dbt-fair": 0.0
+      },
+      "sandbox_passes_ci": {
+        "app-drizzle": [
+          0.0,
+          0.0
+        ],
+        "warehouse-dbt-fair": [
+          0.0,
+          0.0
+        ]
+      },
+      "overall_passes_mean": 0.0,
+      "overall_passes_ci": [
+        0.0,
+        0.0
+      ],
+      "runs": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "tool_usage": {
+        "app-drizzle": {
+          "avg_reads_per_task": 0.06666666666666667,
+          "avg_unique_reads_per_task": 0.06666666666666667,
+          "key_file_read_rate": {
+            "src/schema.ts": 0.06666666666666667,
+            "src/queries.ts": 0.0,
+            "src/db.ts": 0.0
+          }
+        },
+        "warehouse-dbt-fair": {
+          "avg_reads_per_task": 0.13333333333333333,
+          "avg_unique_reads_per_task": 0.13333333333333333,
+          "key_file_read_rate": {
+            "models/schema.yml": 0.13333333333333333,
+            "models/staging/stg_app_api_usage.sql": 0.0,
+            "models/staging/stg_app_users.sql": 0.0,
+            "models/staging/stg_app_organizations.sql": 0.0,
+            "models/staging/stg_stripe_invoices.sql": 0.0,
+            "models/staging/stg_stripe_subscriptions.sql": 0.0
+          }
+        }
+      },
+      "rubric": {
+        "app-drizzle": {
+          "mean": 0.005555555555555555,
+          "runs": 15
+        },
+        "warehouse-dbt-fair": {
+          "mean": 0.004166666666666667,
+          "runs": 15
+        }
+      },
+      "cost": {
+        "per_run": [
+          0.007427639999999999,
+          0.00690003,
+          0.0072093700000000005,
+          0.0068095199999999995,
+          0.006942490000000001,
+          0.006875000000000001,
+          0.00639005,
+          0.006843690000000001,
+          0.00810597,
+          0.00806679
+        ],
+        "mean_usd": 0.007157055000000001,
+        "mean_usd_per_pass": null,
+        "token_usage": [
+          {
+            "inputTokens": 18337,
+            "outputTokens": 2607,
+            "totalTokens": 20944
+          },
+          {
+            "inputTokens": 20964,
+            "outputTokens": 1305,
+            "totalTokens": 22269
+          },
+          {
+            "inputTokens": 21501,
+            "outputTokens": 1478,
+            "totalTokens": 22979
+          },
+          {
+            "inputTokens": 20956,
+            "outputTokens": 1212,
+            "totalTokens": 22168
+          },
+          {
+            "inputTokens": 21072,
+            "outputTokens": 1319,
+            "totalTokens": 22391
+          },
+          {
+            "inputTokens": 20340,
+            "outputTokens": 1456,
+            "totalTokens": 21796
+          },
+          {
+            "inputTokens": 19230,
+            "outputTokens": 1261,
+            "totalTokens": 20491
+          },
+          {
+            "inputTokens": 20407,
+            "outputTokens": 1404,
+            "totalTokens": 21811
+          },
+          {
+            "inputTokens": 25251,
+            "outputTokens": 1356,
+            "totalTokens": 26607
+          },
+          {
+            "inputTokens": 25222,
+            "outputTokens": 1323,
+            "totalTokens": 26545
+          }
+        ]
+      }
+    },
+    "qwen/qwen3-coder-next": {
+      "sandbox_task_pass_rate": {
+        "app-drizzle": {
+          "active_user_arpu": {
+            "pass_rate": 0.0,
+            "passes": 0,
+            "runs": 5,
+            "ci95": [
+              0.0,
+              0.0
+            ]
+          },
+          "org_churn_rate": {
+            "pass_rate": 0.4,
+            "passes": 2,
+            "runs": 5,
+            "ci95": [
+              0.0,
+              0.8294144850840502
+            ]
+          },
+          "avg_org_ltv": {
+            "pass_rate": 0.0,
+            "passes": 0,
+            "runs": 5,
+            "ci95": [
+              0.0,
+              0.0
+            ]
+          }
+        },
+        "warehouse-dbt-fair": {
+          "active_user_arpu": {
+            "pass_rate": 0.0,
+            "passes": 0,
+            "runs": 5,
+            "ci95": [
+              0.0,
+              0.0
+            ]
+          },
+          "org_churn_rate": {
+            "pass_rate": 0.0,
+            "passes": 0,
+            "runs": 5,
+            "ci95": [
+              0.0,
+              0.0
+            ]
+          },
+          "avg_org_ltv": {
+            "pass_rate": 0.0,
+            "passes": 0,
+            "runs": 5,
+            "ci95": [
+              0.0,
+              0.0
+            ]
+          }
+        }
+      },
+      "sandbox_passes_mean": {
+        "app-drizzle": 0.4,
+        "warehouse-dbt-fair": 0.0
+      },
+      "sandbox_passes_ci": {
+        "app-drizzle": [
+          0.0,
+          0.3053639938219455
+        ],
+        "warehouse-dbt-fair": [
+          0.0,
+          0.0
+        ]
+      },
+      "overall_passes_mean": 0.4,
+      "overall_passes_ci": [
+        0.0,
+        0.15592899333902582
+      ],
+      "runs": [
+        0,
+        0,
+        1,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "tool_usage": {
+        "app-drizzle": {
+          "avg_reads_per_task": 2.1333333333333333,
+          "avg_unique_reads_per_task": 2.0,
+          "key_file_read_rate": {
+            "src/schema.ts": 1.0,
+            "src/queries.ts": 1.0,
+            "src/db.ts": 0.0
+          }
+        },
+        "warehouse-dbt-fair": {
+          "avg_reads_per_task": 0.0,
+          "avg_unique_reads_per_task": 0.0,
+          "key_file_read_rate": {
+            "models/schema.yml": 0.0,
+            "models/staging/stg_app_api_usage.sql": 0.0,
+            "models/staging/stg_app_users.sql": 0.0,
+            "models/staging/stg_app_organizations.sql": 0.0,
+            "models/staging/stg_stripe_invoices.sql": 0.0,
+            "models/staging/stg_stripe_subscriptions.sql": 0.0
+          }
+        }
+      },
+      "rubric": {
+        "app-drizzle": {
+          "mean": 0.3,
+          "runs": 15
+        },
+        "warehouse-dbt-fair": {
+          "mean": 0.0,
+          "runs": 15
+        }
+      },
+      "cost": {
+        "per_run": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "mean_usd": null,
+        "mean_usd_per_pass": null,
+        "token_usage": [
+          {
+            "inputTokens": 31642,
+            "outputTokens": 7059,
+            "totalTokens": 38701
+          },
+          {
+            "inputTokens": 46895,
+            "outputTokens": 6163,
+            "totalTokens": 53058
+          },
+          {
+            "inputTokens": 30201,
+            "outputTokens": 4643,
+            "totalTokens": 34844
+          },
+          {
+            "inputTokens": 23832,
+            "outputTokens": 4061,
+            "totalTokens": 27893
+          },
+          {
+            "inputTokens": 22542,
+            "outputTokens": 4211,
+            "totalTokens": 26753
+          },
+          {
+            "inputTokens": 21639,
+            "outputTokens": 1066,
+            "totalTokens": 22705
+          },
+          {
+            "inputTokens": 22194,
+            "outputTokens": 1036,
+            "totalTokens": 23230
+          },
+          {
+            "inputTokens": 19866,
+            "outputTokens": 946,
+            "totalTokens": 20812
+          },
+          {
+            "inputTokens": 22164,
+            "outputTokens": 1003,
+            "totalTokens": 23167
+          },
+          {
+            "inputTokens": 21726,
+            "outputTokens": 1022,
+            "totalTokens": 22748
+          }
+        ]
+      }
+    },
+    "x-ai/grok-code-fast-1": {
+      "sandbox_task_pass_rate": {
+        "app-drizzle": {
+          "active_user_arpu": {
+            "pass_rate": 0.2,
+            "passes": 1,
+            "runs": 5,
+            "ci95": [
+              0.0,
+              0.5506154588719672
+            ]
+          },
+          "org_churn_rate": {
+            "pass_rate": 0.6,
+            "passes": 3,
+            "runs": 5,
+            "ci95": [
+              0.17058551491594975,
+              1.0
+            ]
+          },
+          "avg_org_ltv": {
+            "pass_rate": 0.6,
+            "passes": 3,
+            "runs": 5,
+            "ci95": [
+              0.17058551491594975,
+              1.0
+            ]
+          }
+        },
+        "warehouse-dbt-fair": {
+          "active_user_arpu": {
+            "pass_rate": 0.2,
+            "passes": 1,
+            "runs": 5,
+            "ci95": [
+              0.0,
+              0.5506154588719672
+            ]
+          },
+          "org_churn_rate": {
+            "pass_rate": 1.0,
+            "passes": 5,
+            "runs": 5,
+            "ci95": [
+              1.0,
+              1.0
+            ]
+          },
+          "avg_org_ltv": {
+            "pass_rate": 0.2,
+            "passes": 1,
+            "runs": 5,
+            "ci95": [
+              0.0,
+              0.5506154588719672
+            ]
+          }
+        }
+      },
+      "sandbox_passes_mean": {
+        "app-drizzle": 1.4,
+        "warehouse-dbt-fair": 1.4
+      },
+      "sandbox_passes_ci": {
+        "app-drizzle": [
+          0.2141946806886107,
+          0.7191386526447227
+        ],
+        "warehouse-dbt-fair": [
+          0.2141946806886107,
+          0.7191386526447227
+        ]
+      },
+      "overall_passes_mean": 2.8,
+      "overall_passes_ci": [
+        0.28814201332194833,
+        0.645191320011385
+      ],
+      "runs": [
+        2,
+        0,
+        3,
+        1,
+        1,
+        1,
+        2,
+        1,
+        1,
+        2
+      ],
+      "tool_usage": {
+        "app-drizzle": {
+          "avg_reads_per_task": 2.0,
+          "avg_unique_reads_per_task": 2.0,
+          "key_file_read_rate": {
+            "src/schema.ts": 1.0,
+            "src/queries.ts": 1.0,
+            "src/db.ts": 0.0
+          }
+        },
+        "warehouse-dbt-fair": {
+          "avg_reads_per_task": 1.2666666666666666,
+          "avg_unique_reads_per_task": 1.2666666666666666,
+          "key_file_read_rate": {
+            "models/schema.yml": 0.7333333333333333,
+            "models/staging/stg_app_api_usage.sql": 0.13333333333333333,
+            "models/staging/stg_app_users.sql": 0.06666666666666667,
+            "models/staging/stg_app_organizations.sql": 0.06666666666666667,
+            "models/staging/stg_stripe_invoices.sql": 0.06666666666666667,
+            "models/staging/stg_stripe_subscriptions.sql": 0.0
+          }
+        }
+      },
+      "rubric": {
+        "app-drizzle": {
+          "mean": 0.55,
+          "runs": 15
+        },
+        "warehouse-dbt-fair": {
+          "mean": 0.45416666666666666,
+          "runs": 15
+        }
+      },
+      "cost": {
+        "per_run": [
+          0.0242432,
+          0.0220943,
+          0.0181231,
+          0.0240214,
+          0.018130300000000002,
+          0.0147172,
+          0.013386,
+          0.0165785,
+          0.016593,
+          0.0255957
+        ],
+        "mean_usd": 0.01934827,
+        "mean_usd_per_pass": 0.006910096428571429,
+        "token_usage": [
+          {
+            "inputTokens": 21916,
+            "outputTokens": 13240,
+            "totalTokens": 35156
+          },
+          {
+            "inputTokens": 22174,
+            "outputTokens": 11773,
+            "totalTokens": 33947
+          },
+          {
+            "inputTokens": 18758,
+            "outputTokens": 9581,
+            "totalTokens": 28339
+          },
+          {
+            "inputTokens": 21317,
+            "outputTokens": 13172,
+            "totalTokens": 34489
+          },
+          {
+            "inputTokens": 18824,
+            "outputTokens": 9577,
+            "totalTokens": 28401
+          },
+          {
+            "inputTokens": 27791,
+            "outputTokens": 6106,
+            "totalTokens": 33897
+          },
+          {
+            "inputTokens": 19020,
+            "outputTokens": 6388,
+            "totalTokens": 25408
+          },
+          {
+            "inputTokens": 20440,
+            "outputTokens": 8327,
+            "totalTokens": 28767
+          },
+          {
+            "inputTokens": 24195,
+            "outputTokens": 7836,
+            "totalTokens": 32031
+          },
+          {
+            "inputTokens": 37641,
+            "outputTokens": 12045,
+            "totalTokens": 49686
+          }
+        ]
+      }
+    }
+  },
+  "plateau": {
+    "minimax/minimax-m2.1": {
+      "run_totals": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "running_std": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "qwen/qwen3-coder-next": {
+      "run_totals": [
+        0,
+        0,
+        1,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "running_std": [
+        0.0,
+        0.0,
+        0.4714045207910317,
+        0.4330127018922193,
+        0.48989794855663565,
+        0.4714045207910317,
+        0.45175395145262565,
+        0.4330127018922193,
+        0.41573970964154905,
+        0.4000000000000001
+      ]
+    },
+    "x-ai/grok-code-fast-1": {
+      "run_totals": [
+        2,
+        0,
+        3,
+        1,
+        1,
+        1,
+        2,
+        1,
+        1,
+        2
+      ],
+      "running_std": [
+        0.0,
+        1.0,
+        1.247219128924647,
+        1.118033988749895,
+        1.019803902718557,
+        0.9428090415820632,
+        0.9035079029052513,
+        0.8569568250501305,
+        0.8164965809277259,
+        0.8000000000000002
+      ]
+    }
+  }
+}
