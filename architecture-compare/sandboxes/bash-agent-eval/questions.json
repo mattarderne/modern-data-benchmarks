@@ -1,0 +1,29 @@
+[
+  {
+    "id": "active_user_arpu",
+    "question": "What is the ARPU (Average Revenue Per User) for active users? Active users are those with API usage in the last 30 days (relative to the latest api_usage created_at timestamp). Revenue is the sum of amount_paid from paid invoices. Users are linked to invoices via stripe_customer_id → customer_id. Return a single integer (rounded to nearest whole number).",
+    "category": "aggregation",
+    "difficulty": "hard",
+    "notes": "Requires multi-hop join: api_usage → users (user_id) → stripe_customer_id → invoices (customer_id). Must filter by status='paid' and active window.",
+    "tables_needed": ["users", "api_usage", "invoices"],
+    "files_needed": ["users.json", "api_usage.json", "invoices.json"]
+  },
+  {
+    "id": "org_churn_rate",
+    "question": "What is the organization churn rate? A churned organization has no active subscriptions AND no API usage in the last 30 days (relative to latest api_usage created_at). The denominator is organizations that have at least one user. Return a decimal with 4 decimal places (e.g., 0.2168).",
+    "category": "aggregation",
+    "difficulty": "hard",
+    "notes": "Requires joining organizations → users → stripe_customer_id → subscriptions (status='active'), and organizations → users → api_usage (30-day window). Count orgs with neither.",
+    "tables_needed": ["organizations", "users", "subscriptions", "api_usage"],
+    "files_needed": ["organizations.json", "users.json", "subscriptions.json", "api_usage.json"]
+  },
+  {
+    "id": "avg_org_ltv",
+    "question": "What is the average organization lifetime value (LTV)? For each organization with at least one user, sum the amount_paid from all paid invoices for all users in that org (joined via users.stripe_customer_id → invoices.customer_id). Then take the average across all qualifying orgs. Return a single integer (rounded to nearest whole number).",
+    "category": "aggregation",
+    "difficulty": "medium",
+    "notes": "Requires organizations → users → stripe_customer_id → invoices chain. Simpler than ARPU (no time window) but still requires the cross-system join.",
+    "tables_needed": ["organizations", "users", "invoices"],
+    "files_needed": ["organizations.json", "users.json", "invoices.json"]
+  }
+]
