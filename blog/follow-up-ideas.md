@@ -62,6 +62,50 @@ Could frame it as: the agent benchmark is a diagnostic tool for this problem. If
 
 ---
 
+## Idea 3: "dbt isn't the problem — indirection is" — steelmanning dbt for agents
+
+Inspired by [Ten years late to the dbt party (DuckDB edition)](https://rmoff.net/2026/02/19/ten-years-late-to-the-dbt-party-duckdb-edition/) by rmoff ([HN discussion](https://news.ycombinator.com/item?id=47088464)), and [this tweet](https://x.com/rmoff/status/2024860235014226345).
+
+### The tension
+
+Our benchmark shows agents fail at dbt architectures. But dbt provides real value that our benchmarks don't measure — and a follow-up should engage with that honestly rather than letting readers conclude "dbt bad."
+
+### What dbt actually gives you (from rmoff's post)
+
+- **Lineage via `ref()`** — dbt understands model dependencies because you declare them. This is the same graph that makes agents *struggle* (more files to traverse), but it's also what makes dbt *powerful* for humans (automated dependency resolution, impact analysis, "where does this data come from?").
+- **Auto-generated documentation** — static HTML docs from `dbt docs generate` that show table metadata, column descriptions, lineage graphs. No more tribal knowledge about column derivations.
+- **Freshness monitoring** — dbt can track source freshness (`_latest_reading_at` pattern), showing which data is stale. rmoff's example shows per-station freshness for weather sensors.
+- **Snapshot tables (SCD Type 2)** — dbt snapshots track changes over time, solving the problem rmoff hit in his earlier DuckDB-only pipeline where dimension changes were destructive (SCD Type 1 brute-force rebuilds losing history).
+- **Orchestrator integration** — Dagster (and Airflow, Prefect, etc.) can introspect dbt's model graph, pulling in documentation and dependencies automatically.
+
+### The argument to make
+
+The features that make dbt hard for agents are the same features that make it valuable for teams. The question isn't "dbt vs. no dbt" — it's "how do you get dbt's governance benefits without creating an agent-hostile data layer?"
+
+Possible angles:
+
+1. **The indirection tax** — dbt's value comes from separation of concerns (staging, marts, docs). Our benchmarks measure the cost of that separation for a new consumer (the agent). The follow-up could quantify: what specific dbt features cause agent failures, and which are neutral or even helpful?
+
+2. **dbt as documentation, not navigation** — an agent doesn't need to *traverse* staging layers. It needs to know the final schema and how columns are derived. dbt's `schema.yml` and generated docs *could* be the agent's entry point, bypassing the file-scatter problem. Our `warehouse-dbt-documented` experiment partially tested this — worth revisiting with a "give the agent the docs page" approach.
+
+3. **The hybrid architecture** — what if the agent reads dbt's compiled SQL or manifest.json instead of traversing source files? dbt produces `target/compiled/` and `target/manifest.json` which contain the resolved, flattened versions of all models. This could give agents the benefits of dbt's transformation logic without the multi-file discovery problem.
+
+4. **Benchmarking the specific dbt features** — run the benchmark against:
+   - Agent given `manifest.json` (dbt's compiled dependency graph)
+   - Agent given `dbt docs` output (the documentation site content)
+   - Agent given only mart models (skip staging discovery)
+   - Compare against the current "agent reads all source files" baseline
+
+### Connection to existing benchmarks
+
+Our `warehouse-dbt-fair` and `warehouse-dbt-documented` experiments already moved in this direction by adding `schema.yml` with column descriptions and join hints. The results improved but didn't close the gap. This follow-up would explore whether giving agents dbt's *output artifacts* (rather than its *source files*) changes the picture.
+
+### Why this matters for the blog
+
+The v1 post risks being read as "dbt is bad for AI." The more nuanced (and more useful) takeaway is: "dbt's transformation patterns create indirection that agents can't navigate, but dbt's metadata and documentation features could actually help agents — if you expose them correctly." This reframes the advice from "don't use dbt" to "use dbt, but think about your agent's entry point."
+
+---
+
 ## Supporting materials
 
 - Architecture diagrams: `blog/diagrams.md`
