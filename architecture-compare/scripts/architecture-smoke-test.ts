@@ -1,6 +1,6 @@
 #!/usr/bin/env npx ts-node
 /**
- * Architecture Smoke Test: Validate app-typed, app-drizzle, warehouse-dbt sandboxes (including cast/documented/fair variants).
+ * Architecture Smoke Test: Validate app-typed, app-drizzle, warehouse-dbt sandboxes (including cast/documented/fair/realistic variants).
  * Writes known-correct implementations and ensures validators accept them.
  */
 
@@ -620,6 +620,7 @@ async function main() {
   results['warehouse-dbt-documented'] = await testWarehouseDbt(expected, 'warehouse-dbt-documented');
   results['warehouse-dbt-cast'] = await testWarehouseDbt(expected, 'warehouse-dbt-cast');
   results['warehouse-dbt-fair'] = await testWarehouseDbt(expected, 'warehouse-dbt-fair');
+  results['warehouse-dbt-realistic'] = await testWarehouseDbt(expected, 'warehouse-dbt-realistic');
 
   console.log('\n' + '='.repeat(60));
   console.log('SUMMARY');

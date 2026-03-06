@@ -66,6 +66,18 @@ KEY_FILES = {
         'models/staging/stg_stripe_invoices.sql',
         'models/staging/stg_stripe_subscriptions.sql',
     ],
+    'warehouse-dbt-realistic': [
+        'app_surface/src/schema.ts',
+        'app_surface/src/queries.ts',
+        'app_surface/src/db.ts',
+        'app_surface/state/table_to_snapshot_map.yml',
+        'models/schema.yml',
+        'models/staging/stg_app_api_usage.sql',
+        'models/staging/stg_app_users.sql',
+        'models/staging/stg_app_organizations.sql',
+        'models/staging/stg_stripe_invoices.sql',
+        'models/staging/stg_stripe_subscriptions.sql',
+    ],
 }
 
 

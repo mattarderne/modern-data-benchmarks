@@ -24,6 +24,22 @@ export interface ValidationResult {
   error?: string;
 }
 
+export interface SurfaceDefinition {
+  app: string[];
+  dbt: string[];
+}
+
+export interface SurfaceTouchSummary {
+  touched: boolean;
+  count: number;
+}
+
+export interface CrossLayerTelemetry {
+  touched_app_surface: SurfaceTouchSummary;
+  touched_dbt_surface: SurfaceTouchSummary;
+  cross_layer_traversal: boolean;
+}
+
 export interface SandboxConfig {
   id: string;
   name: string;
@@ -36,6 +52,9 @@ export interface SandboxConfig {
 
   // System prompt for this architecture
   systemPrompt: string;
+
+  // Optional telemetry mapping for cross-layer audits
+  surfaceTelemetry?: SurfaceDefinition;
 
   // Generate task-specific prompt
   taskPrompt: (task: Task) => string;
@@ -85,4 +104,5 @@ export interface BenchmarkResult {
     toolUsage: number;
     total: number;
   };
+  telemetry?: CrossLayerTelemetry;
 }

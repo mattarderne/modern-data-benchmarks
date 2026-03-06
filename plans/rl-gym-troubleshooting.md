@@ -50,6 +50,25 @@ Out of scope until the validation gate passes:
   - Add a `warehouse-dbt-realistic` comparator that preserves DBT layers **and** exposes source app/ORM artifacts as first-class context.
   - Intent: reflect realistic debugging where analysts/agents inspect both upstream app logic and downstream dbt/warehouse logic.
 
+### A1a) `warehouse-dbt-realistic` spec (succinct)
+
+- Base: `warehouse-dbt-fair`.
+- Add source-app surface as auditable context (same data snapshot):
+  - app ORM schema and query files (`app-drizzle` equivalents),
+  - app DB tables/state as separate inspectable layer,
+  - warehouse raw + dbt staging + dbt marts remain unchanged.
+- Agent expectations:
+  - Must be able to inspect both upstream app/ORM and downstream dbt/warehouse layers.
+  - System prompt explicitly states both layers are part of the expected audit path.
+- Fairness constraints:
+  - No hidden hints unavailable to ORM baseline.
+  - Same task statements, turn budget, model set, and validation rules as `app-drizzle`.
+  - Keep dbt docs/cast improvements from `warehouse-dbt-fair`; do not add one-off task hints.
+- Required telemetry tags for this sandbox:
+  - `touched_app_surface` (bool/count),
+  - `touched_dbt_surface` (bool/count),
+  - `cross_layer_traversal` (bool: both touched in one task run).
+
 ### A2) Enforce strict parity
 
 - Same tasks: `active_user_arpu`, `org_churn_rate`, `avg_org_ltv`.
