@@ -19,6 +19,10 @@ When companies build agent tools — MCP servers, API wrappers, database connect
 - **Deeper failure mode taxonomy** — the specific ways agents fail in dbt (column renames, VARCHAR casting, file scatter, join key discovery)
 - **Prescriptive guidance** — concrete "what to do about it" for teams building agent tools today
 
+### References & orientation
+
+- [dltHub: The Ontology Problem](https://dlthub.com/blog/ontology) — good framing on how schema/ontology choices affect downstream consumers. Relevant consideration for the "prescriptive guidance" section and how to think about data contracts for agent-facing layers.
+
 ### Draft
 
 Full draft is in `blog/agent-tools-v2.md`.
