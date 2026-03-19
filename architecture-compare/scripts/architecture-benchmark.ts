@@ -13,7 +13,14 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { Task, SandboxConfig, BenchmarkResult, ValidationResult } from '../sandboxes/types';
+import type {
+  Task,
+  SandboxConfig,
+  BenchmarkResult,
+  ValidationResult,
+  SurfaceDefinition,
+  CrossLayerTelemetry,
+} from '../sandboxes/types';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -235,7 +242,15 @@ Return: number (rounded to nearest integer for TypeScript/Drizzle, raw for SQL)`
 // SANDBOX MANAGEMENT
 // ============================================
 
-const AVAILABLE_SANDBOXES = ['app-typed', 'app-drizzle', 'warehouse-dbt', 'warehouse-dbt-documented', 'warehouse-dbt-cast', 'warehouse-dbt-fair'];
+const AVAILABLE_SANDBOXES = [
+  'app-typed',
+  'app-drizzle',
+  'warehouse-dbt',
+  'warehouse-dbt-documented',
+  'warehouse-dbt-cast',
+  'warehouse-dbt-fair',
+  'warehouse-dbt-realistic',
+];
 
 async function loadSandboxConfig(sandboxId: string): Promise<SandboxConfig> {
   const configPath = path.join(SANDBOXES_DIR, sandboxId, 'sandbox.config.ts');
@@ -431,7 +446,51 @@ type RubricScore = {
 };
 
 function normalizePath(value: string): string {
-  return value.trim().replace(/^\.\/+/, '');
+  return value.trim().replace(/^\.\/+/, '').replaceAll('\\', '/').replace(/\/+$/, '');
+}
+
+function pathTouchesSurface(pathValue: string, surfacePath: string): boolean {
+  if (!pathValue || !surfacePath) return false;
+  if (pathValue === surfacePath) return true;
+  if (pathValue.startsWith(`${surfacePath}/`)) return true;
+  if (surfacePath.startsWith(`${pathValue}/`)) return true;
+  return false;
+}
+
+function computeCrossLayerTelemetry(
+  toolUsage: ToolUsage | undefined,
+  surfaces: SurfaceDefinition | undefined
+): CrossLayerTelemetry | undefined {
+  if (!toolUsage || !surfaces) return undefined;
+  const allPaths = [
+    ...toolUsage.readFiles,
+    ...toolUsage.listFiles,
+    ...toolUsage.writeFiles,
+  ].map(normalizePath).filter(Boolean);
+
+  if (allPaths.length === 0) {
+    return {
+      touched_app_surface: { touched: false, count: 0 },
+      touched_dbt_surface: { touched: false, count: 0 },
+      cross_layer_traversal: false,
+    };
+  }
+
+  const uniquePaths = [...new Set(allPaths)];
+  const appSurface = surfaces.app.map(normalizePath).filter(Boolean);
+  const dbtSurface = surfaces.dbt.map(normalizePath).filter(Boolean);
+
+  const appTouches = uniquePaths.filter(p => appSurface.some(s => pathTouchesSurface(p, s)));
+  const dbtTouches = uniquePaths.filter(p => dbtSurface.some(s => pathTouchesSurface(p, s)));
+
+  const touchedApp = appTouches.length > 0;
+  const touchedDbt = dbtTouches.length > 0;
+
+  return {
+    touched_app_surface: { touched: touchedApp, count: appTouches.length },
+    touched_dbt_surface: { touched: touchedDbt, count: dbtTouches.length },
+    cross_layer_traversal: touchedApp && touchedDbt,
+  };
 }
 
 function isSchemaError(error?: string): boolean {
@@ -658,6 +717,7 @@ async function runBenchmark(
       if (!agentResult.success) {
         console.log(`\n  ✗ FAIL: ${agentResult.error}`);
         const rubric = computeRubric(config, false, false, agentResult.error, toolUsage);
+        const telemetry = computeCrossLayerTelemetry(toolUsage, config.surfaceTelemetry);
         results.push({
           sandbox: sandboxId,
           model,
@@ -671,6 +731,7 @@ async function runBenchmark(
           lint: lintResult ? { valid: lintResult.valid, error: lintResult.error } : undefined,
           tokenUsage,
           rubric,
+          telemetry,
         });
         continue;
       }
@@ -710,6 +771,7 @@ async function runBenchmark(
       if (!validation.valid) {
         console.log(`\n  ✗ FAIL: ${validation.error}`);
         const rubric = computeRubric(config, false, false, validation.error, toolUsage);
+        const telemetry = computeCrossLayerTelemetry(toolUsage, config.surfaceTelemetry);
         results.push({
           sandbox: sandboxId,
           model,
@@ -723,6 +785,7 @@ async function runBenchmark(
           lint: lintResult ? { valid: lintResult.valid, error: lintResult.error } : undefined,
           tokenUsage,
           rubric,
+          telemetry,
         });
         continue;
       }
@@ -730,6 +793,7 @@ async function runBenchmark(
       const diff = Math.abs((validation.actual ?? 0) - expected);
       const pass = diff <= task.tolerance;
       const rubric = computeRubric(config, pass, true, undefined, toolUsage);
+      const telemetry = computeCrossLayerTelemetry(toolUsage, config.surfaceTelemetry);
 
       if (pass) {
         console.log(`\n  ✓ PASS (${agentResult.turns} turns)`);
@@ -752,6 +816,7 @@ async function runBenchmark(
         lint: lintResult ? { valid: lintResult.valid, error: lintResult.error } : undefined,
         tokenUsage,
         rubric,
+        telemetry,
       });
     }
   }

@@ -1,0 +1,14 @@
+# App/ORM table state mapping (same snapshot used by warehouse/raw tables)
+app_tables:
+  organizations: data/organizations.json
+  users: data/users.json
+  api_usage: data/api_usage.json
+  chat_sessions: data/chat_sessions.json
+  features: data/features.json
+stripe_tables:
+  customers: data/customers.json
+  invoices: data/invoices.json
+  subscriptions: data/subscriptions.json
+  prices: data/prices.json
+  products: data/products.json
+  payment_intents: data/payment_intents.json
